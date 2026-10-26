@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luxera Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6fb;color:#1b2436;font:14px Arial,sans-serif}
+header{background:#24243a;color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:20px;letter-spacing:1px}
+.wrap{max-width:1200px;margin:auto;padding:18px}
+.card{background:#fff;padding:16px;border:1px solid #e1e5ef;border-radius:12px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:150px}
+input,select,textarea,button{font:inherit;padding:10px;border:1px solid #d8deea;border-radius:8px;width:100%;margin:4px 0}
+button{background:#7057d9;color:white;border:0;font-weight:bold;cursor:pointer}
+button.alt{background:#e9eaf2;color:#25283b}
+button.red{background:#b82f42}
+button:disabled{opacity:.4}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+nav button{width:auto}
+.hidden{display:none!important}
+.msg{padding:10px;background:#eeeaff;border-radius:8px;margin:8px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:#fff;padding:14px;border-radius:10px;border:1px solid #e1e5ef}
+.stat strong{display:block;font-size:23px;margin-top:8px}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e8f0}
+th{background:#f8f9fc}
+.table{overflow:auto}
+small{color:#6e778b}
+@media(max-width:600px){.wrap{padding:10px}header{padding:14px}.row>*{min-width:100%}}
+</style>
+</head>
+<body>
+
+<header>
+  <b>LUXERA <small style="color:#bbb">ADMIN</small></b>
+  <button id="logout" class="alt hidden" style="width:auto">Sign out</button>
+</header>
+
+<main class="wrap">
+<section id="login" class="card">
+  <h2>Luxera Admin Login</h2>
+  <p>Supabase details enter karo.</p>
+  <div class="row">
+    <input id="url" placeholder="Supabase Project URL">
+    <input id="key" placeholder="Supabase Publishable / Anon Key">
+  </div>
+  <div class="row">
+    <input id="email" type="email" placeholder="Admin email">
+    <input id="pass" type="password" placeholder="Password">
+  </div>
+  <button id="connect">Connect & Sign In</button>
+  <div id="loginmsg" class="msg hidden"></div>
+</section>
+
+<section id="app" class="hidden">
+  <div id="msg" class="msg hidden"></div>
+  <nav>
+    <button onclick="show('Dashboard')">Dashboard</button>
+    <button onclick="show('Products')">Products</button>
+    <button onclick="show('Orders')">Orders / COD</button>
+    <button onclick="show('Expenses')">Expenses</button>
+    <button onclick="show('Reports')">Export Reports</button>
+  </nav>
+  <div id="view"></div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let db=null,products=[],orders=[],items=[],expenses=[],current='Dashboard';
+
+const money=n=>'Rs. '+Number(n||0).toLocaleString('en-PK',{maximumFractionDigits:2});
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+
+function notice(s){
+  $('msg').textContent=s;
+  $('msg').classList.remove('hidden');
+  setTimeout(()=>$('msg').classList.add('hidden'),5000);
+}
+
+function loginNotice(s){
+  $('loginmsg').textContent=s;
+  $('loginmsg').classList.remove('hidden');
+}
+
+async function load(){
+  let a=await Promise.all([
+    db.from('products').select('*').order('name'),
+    db.from('orders').select('*').order('created_at',{ascending:false}),
+    db.from('order_items').select('*'),
+    db.from('expenses').select('*').order('expense_date',{ascending:false})
+  ]);
+
+  for(let r of a) if(r.error) throw r.error;
+
+  [products,orders,items,expenses]=a.map(x=>x.data||[]);
+  show(current);
+}
+
+$('url').value=localStorage.getItem('lxurl')||'';
+$('key').value=localStorage.getItem('lxkey')||'';
+
+$('connect').onclick=async()=>{
+  try{
+    let u=$('url').value.trim(),k=$('key').value.trim();
+    if(!u||!k) throw Error('Supabase URL aur key enter karo.');
+
+    localStorage.setItem('lxurl',u);
+    localStorage.setItem('lxkey',k);
+
+    db=window.supabase.createClient(u,k);
+
+    let {data,error}=await db.auth.signInWithPassword({
+      email:$('email').value.trim(),
+      password:$('pass').value
+    });
+
+    if(error) throw error;
+    if(!data.session) throw Error('Login session nahi mili.');
+
+    $('login').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    $('logout').classList.remove('hidden');
+
+    await load();
+  }catch(e){
+    loginNotice(e.message||String(e));
+  }
+};
+
+$('logout').onclick=async()=>{
+  if(db) await db.auth.signOut();
+  location.reload();
+};
+
+function field(label,id,type='text',value='',required=false){
+  return `<label>${label}
+    <input id="${id}" type="${type}" value="${esc(value)}"
+    ${required?'required':''}>
+  </label>`;
+}
+
+function table(headers,rows){
+  return `<div class="table"><table>
+  <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+  <tbody>${rows||'<tr><td colspan="10">No records yet.</td></tr>'}</tbody>
+  </table></div>`;
+}
+
+function show(p){
+  current=p;
+  let v=$('view');
+
+  if(p==='Dashboard'){
+    v.innerHTML=`
+    <h2>Dashboard</h2>
+    <div class="stats">
+      <div class="stat">Products<strong>${products.length}</strong></div>
+      <div class="stat">Units in stock<strong>${products.reduce((s,p)=>s+Number(p.stock),0)}</strong></div>
+      <div class="stat">Low stock<strong>${products.filter(p=>p.stock<=p.reorder_level).length}</strong></div>
+      <div class="stat">Orders<strong>${orders.length}</strong></div>
+      <div class="stat">Pending COD<strong>${orders.filter(o=>o.payment_status==='Pending').length}</strong></div>
+      <div class="stat">Expenses<strong>${money(expenses.reduce((s,e)=>s+Number(e.amount),0))}</strong></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      Courier: Leopards<br>
+      Default customer delivery fee: Rs. 200<br>
+      Estimated COD deduction: 4% of Total COD.<br>
+      Actual courier charges and settlement are entered separately.
+    </div>`;
+  }
+
+  else if(p==='Products'){
+    v.innerHTML=`
+    <h2>Products & Inventory</h2>
+    <div class="card">
+      <h3>Add Product</h3>
+      <div class="row">
+        ${field('SKU','sku','text','',true)}
+        ${field('Product name','pname','text','',true)}
+        <label>Category
+          <select id="cat">
+            <option>Perfume</option><option>Watch</option>
+            <option>Wallet</option><option>Hoodie</option>
+            <option>Sweatshirt</option><option>Sweater</option>
+            <option>Jacket</option><option>Office</option><option>Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        ${field('Cost price','cost','number','0')}
+        ${field('Sale price','sale','number','0')}
+        ${field('Opening stock','stock','number','0')}
+        ${field('Low-stock alert','reorder','number','3')}
+      </div>
+      <button onclick="addProduct()">Save Product</button>
+    </div>
+    ${table(['SKU','Product','Category','Cost','Price','Stock','Action'],
+    products.map(p=>`<tr>
+      <td>${esc(p.sku)}</td><td>${esc(p.name)}</td>
+      <td>${esc(p.category)}</td><td>${money(p.cost_price)}</td>
+      <td>${money(p.sale_price)}</td><td>${p.stock}</td>
+      <td><button class="alt" onclick="stockIn('${p.id}')">Stock +</button></td>
+    </tr>`).join(''))}`;
+  }
+
+  else if(p==='Orders'){
+    v.innerHTML=`
+    <h2>Orders / COD</h2>
+    <div class="card">
+      <h3>Create Order</h3>
+      <div class="row">
+        ${field('Order number','onum','text','LX-'+Date.now().toString().slice(-7),true)}
+        ${field('Customer name','cust','text','',true)}
+        ${field('Phone','phone')}
+      </div>
+      <div class="row">
+        <label>Product
+          <select id="prod">
+            ${products.map(x=>`<option value="${x.id}">
+              ${esc(x.name)} / ${esc(x.sku)} / stock ${x.stock} / ${money(x.sale_price)}
+            </option>`).join('')}
+          </select>
+        </label>
+        ${field('Quantity','qty','number','1',true)}
+        ${field('Customer delivery fee','df','number','200',true)}
+        ${field('COD deduction %','rate','number','4',true)}
+      </div>
+      ${field('Address','addr')}
+      <button onclick="addOrder()">Create Order</button>
+      <small>Stock dispatch par minus hoga. Actual courier fee dispatch ke waqt enter karo.</small>
+    </div>
+    ${table(['Order','Customer','COD','Status','Payment','Tracking','Actions'],
+    orders.map(o=>`<tr>
+      <td>${esc(o.order_number)}<br><small>Leopards</small></td>
+      <td>${esc(o.customer_name)}<br>${esc(o.customer_phone)}</td>
+      <td>${money(o.total_cod)}<br><small>4% estimate: ${money(o.total_cod*o.deduction_rate/100)}</small></td>
+      <td>${esc(o.status)}</td>
+      <td>${esc(o.payment_status)}</td>
+      <td>${esc(o.tracking_number||'—')}</td>
+      <td>
+        <button onclick="dispatch('${o.id}')" ${o.status!=='Pending'?'disabled':''}>Dispatch</button>
+        <button class="alt" onclick="delivered('${o.id}')" ${o.status!=='Dispatched'?'disabled':''}>Delivered</button>
+        <button class="red" onclick="returnOrder('${o.id}')" ${!['Dispatched','Delivered'].includes(o.status)?'disabled':''}>Return</button>
+        <button class="alt" onclick="settle('${o.id}')">COD Settle</button>
+      </td>
+    </tr>`).join(''))}`;
+  }
+
+  else if(p==='Expenses'){
+    v.innerHTML=`
+    <h2>Expenses</h2>
+    <div class="card">
+      <div class="row">
+        <label>Date<input id="edate" type="date" value="${new Date().toISOString().slice(0,10)}"></label>
+        <label>Category
+          <select id="ecat">
+            <option>Packaging</option><option>Advertising</option>
+            <option>Office supplies</option><option>Product purchase</option>
+            <option>Courier</option><option>Equipment</option><option>Other</option>
+          </select>
+        </label>
+        ${field('Amount','eamount','number','',true)}
+        ${field('Description','edesc','text','',true)}
+      </div>
+      <button onclick="addExpense()">Save Expense</button>
+    </div>
+    ${table(['Date','Category','Description','Amount'],
+    expenses.map(e=>`<tr>
+      <td>${esc(e.expense_date)}</td><td>${esc(e.category)}</td>
+      <td>${esc(e.description)}</td><td>${money(e.amount)}</td>
+    </tr>`).join(''))}`;
+  }
+
+  else{
+    v.innerHTML=`
+    <h2>Export Reports</h2>
+    <div class="card">
+      ${['products','orders','order_items','expenses','stock_movements'].map(t=>
+      `<button onclick="exportCSV('${t}')">Export ${t.replace('_',' ')} CSV</button>`).join(' ')}
+      <p><small>CSV files Excel mein open ho jati hain.</small></p>
+    </div>`;
+  }
+}
+
+async function addProduct(){
+  try{
+    let d={
+      sku:$('sku').value.trim().toUpperCase(),
+      name:$('pname').value.trim(),
+      category:$('cat').value,
+      cost_price:+$('cost').value||0,
+      sale_price:+$('sale').value||0,
+      stock:+$('stock').value||0,
+      reorder_level:+$('reorder').value||0
+    };
+    if(!d.sku||!d.name) throw Error('SKU aur product name required hain.');
+    if(d.stock<0||d.cost_price<0||d.sale_price<0) throw Error('Negative amount allowed nahi.');
+
+    let {data,error}=await db.from('products').insert(d).select().single();
+    if(error) throw error;
+
+    if(d.stock){
+      let r=await db.from('stock_movements').insert({
+        product_id:data.id,movement_type:'Opening',
+        quantity:d.stock,note:'Opening stock'
+      });
+      if(r.error) throw r.error;
+    }
+    await load();notice('Product saved.');
+  }catch(e){notice(e.message)}
+}
+
+async function stockIn(id){
+  let n=prompt('Kitne units add karne hain?');
+  if(n===null)return;
+  let q=Number(n),p=products.find(x=>x.id===id);
+  if(!Number.isInteger(q)||q<1)return alert('Whole quantity enter karo.');
+
+  try{
+    let {error}=await db.from('products').update({stock:Number(p.stock)+q}).eq('id',id);
+    if(error)throw error;
+    let r=await db.from('stock_movements').insert({
+      product_id:id,movement_type:'Stock In',quantity:q,note:'Manual stock-in'
+    });
+    if(r.error)throw r.error;
+    await load();notice('Stock updated.');
+  }catch(e){notice(e.message)}
+}
+
+async function addOrder(){
+  try{
+    if(!products.length)throw Error('Pehle product add karo.');
+
+    let p=products.find(x=>x.id===$('prod').value);
+    let q=+$('qty').value,fee=+$('df').value,rate=+$('rate').value;
+
+    if(!p||!Number.isInteger(q)||q<1||q>p.stock)
+      throw Error('Quantity invalid hai ya stock kam hai.');
+
+    let sub=q*Number(p.sale_price),total=sub+fee;
+    let number=$('onum').value.trim();
+
+    if(!number||!$('cust').value.trim())
+      throw Error('Order number aur customer name required hain.');
+
+    let o={
+      order_number:number,
+      customer_name:$('cust').value.trim(),
+      customer_phone:$('phone').value.trim(),
+      address:$('addr').value.trim(),
+      courier:'Leopards',
+      status:'Pending',
+      payment_status:'Pending',
+      product_subtotal:sub,
+      customer_delivery_fee:fee,
+      total_cod:total,
+      deduction_rate:rate,
+      deduction_basis:'Total COD'
+    };
+
+    let {data,error}=await db.from('orders').insert(o).select().single();
+    if(error)throw error;
+
+    let r=await db.from('order_items').insert({
+      order_id:data.id,product_id:p.id,
+      product_name:p.name,sku:p.sku,quantity:q,
+      unit_sale_price:p.sale_price,unit_cost_price:p.cost_price
+    });
+
+    if(r.error){
+      await db.from('orders').delete().eq('id',data.id);
+      throw r.error;
+    }
+
+    await load();notice('Order created; stock will reduce on dispatch.');
+  }catch(e){notice(e.message)}
+}
+
+async function dispatch(id){
+  let track=prompt('Leopards tracking / consignment number?','');
+  if(track===null)return;
+  let fee=prompt('Actual Leopards outbound fee (Rs.)?','300');
+  if(fee===null)return;
+
+  try{
+    let {error}=await db.rpc('dispatch_order',{
+      p_order_id:id,
+      p_tracking_number:track||'',
+      p_outbound_fee:Number(fee)||0
+    });
+    if(error)throw error;
+    await load();notice('Dispatched; stock deducted once.');
+  }catch(e){notice(e.message)}
+}
+
+async function delivered(id){
+  try{
+    let {error}=await db.from('orders')
+      .update({status:'Delivered',delivered_at:new Date().toISOString()})
+      .eq('id',id).eq('status','Dispatched');
+    if(error)throw error;
+    await load();notice('Marked delivered.');
+  }catch(e){notice(e.message)}
+}
+
+async function returnOrder(id){
+  let fee=prompt('Actual return courier fee (Rs.)?','0');
+  if(fee===null)return;
+  let note=prompt('Return note / item condition:','Returned parcel')||'';
+
+  try{
+    let {error}=await db.rpc('return_order',{
+      p_order_id:id,p_return_fee:Number(fee)||0,p_note:note
+    });
+    if(error)throw error;
+    await load();notice('Return recorded and stock restored once. Check item condition before reselling.');
+  }catch(e){notice(e.message)}
+}
+
+async function settle(id){
+  let o=orders.find(x=>x.id===id);
+  let est=Number(o.total_cod)*Number(o.deduction_rate)/100;
+  let fee=Number(o.actual_outbound_courier_fee||0);
+
+  let tax=prompt('Actual deduction from Leopards statement (Rs.)?',String(est));
+  if(tax===null)return;
+
+  let received=prompt('Actual amount received (Rs.)?',
+    String(Math.max(0,Number(o.total_cod)-Number(tax)-fee)));
+  if(received===null)return;
+
+  let status=prompt('Payment status: Settled / Partial / Not received','Settled');
+  if(!status)return;
+
+  try{
+    let {error}=await db.from('orders').update({
+      actual_deduction:Number(tax),
+      actual_settlement:Number(received),
+      payment_status:status
+    }).eq('id',id);
+
+    if(error)throw error;
+    await load();notice('COD settlement saved.');
+  }catch(e){notice(e.message)}
+}
+
+async function addExpense(){
+  try{
+    let d={
+      expense_date:$('edate').value,
+      category:$('ecat').value,
+      amount:+$('eamount').value,
+      description:$('edesc').value.trim()
+    };
+    if(!d.description||d.amount<0)throw Error('Expense details check karo.');
+
+    let {error}=await db.from('expenses').insert(d);
+    if(error)throw error;
+    await load();notice('Expense saved.');
+  }catch(e){notice(e.message)}
+}
+
+async function exportCSV(t){
+  try{
+    let rows;
+
+    if(t==='products')rows=products;
+    else if(t==='orders')rows=orders;
+    else if(t==='order_items')rows=items;
+    else if(t==='expenses')rows=expenses;
+    else{
+      let {data,error}=await db.from('stock_movements')
+        .select('*').order('created_at',{ascending:false});
+      if(error)throw error;
+      rows=data||[];
+    }
+
+    if(!rows.length)return notice('Export karne ke liye data nahi.');
+
+    let keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+    let cell=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+    let csv='\ufeff'+[
+      keys.map(cell).join(','),
+      ...rows.map(r=>keys.map(k=>cell(r[k])).join(','))
+    ].join('\r\n');
+
+    let a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download='luxera-'+t+'.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }catch(e){notice(e.message)}
+}
+
+window.show=show;
+window.addProduct=addProduct;
+window.stockIn=stockIn;
+window.addOrder=addOrder;
+window.dispatch=dispatch;
+window.delivered=delivered;
+window.returnOrder=returnOrder;
+window.settle=settle;
+window.addExpense=addExpense;
+window.exportCSV=exportCSV;
+</script>
+</body>
+</html>
