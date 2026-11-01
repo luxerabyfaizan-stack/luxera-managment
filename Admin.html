@@ -1,516 +1,74 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Luxera Admin</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111111"><title>LUXERA BY FAIZAN â€” Business OS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f4f6fb;color:#1b2436;font:14px Arial,sans-serif}
-header{background:#24243a;color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
-header b{font-size:20px;letter-spacing:1px}
-.wrap{max-width:1200px;margin:auto;padding:18px}
-.card{background:#fff;padding:16px;border:1px solid #e1e5ef;border-radius:12px;margin-bottom:14px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.row>*{flex:1;min-width:150px}
-input,select,textarea,button{font:inherit;padding:10px;border:1px solid #d8deea;border-radius:8px;width:100%;margin:4px 0}
-button{background:#7057d9;color:white;border:0;font-weight:bold;cursor:pointer}
-button.alt{background:#e9eaf2;color:#25283b}
-button.red{background:#b82f42}
-button:disabled{opacity:.4}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-nav button{width:auto}
-.hidden{display:none!important}
-.msg{padding:10px;background:#eeeaff;border-radius:8px;margin:8px 0}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat{background:#fff;padding:14px;border-radius:10px;border:1px solid #e1e5ef}
-.stat strong{display:block;font-size:23px;margin-top:8px}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e8f0}
-th{background:#f8f9fc}
-.table{overflow:auto}
-small{color:#6e778b}
-@media(max-width:600px){.wrap{padding:10px}header{padding:14px}.row>*{min-width:100%}}
-</style>
-</head>
+:root{--bg:#0d0e11;--panel:#15171c;--panel2:#1c1f25;--line:#2b2e35;--gold:#c9a66b;--gold2:#ead2a5;--text:#f3f1ec;--muted:#a2a5ae;--red:#e06d70;--green:#76c7a1;--blue:#8cb9ef;--radius:15px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid transparent;border-radius:9px;padding:10px 13px;background:var(--gold);color:#17140e;font-weight:750;transition:.15s}button:hover{filter:brightness(1.08)}button:disabled{opacity:.35;cursor:not-allowed}.btn-ghost{background:#22252b;border-color:var(--line);color:var(--text)}.btn-danger{background:#4b2428;color:#ffdfe0;border-color:#69363a}.btn-small{padding:6px 9px;font-size:12px}.btn-blue{background:#253b55;color:#dcecff}.hidden{display:none!important}input,select,textarea{width:100%;background:#101216;color:var(--text);border:1px solid #343740;border-radius:9px;padding:11px 12px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--gold)}textarea{min-height:76px;resize:vertical}label{display:flex;flex-direction:column;gap:6px;color:#c6c7cc;font-size:12px;font-weight:650;min-width:0}option{background:#15171c}.app-shell{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:245px;background:#111216;border-right:1px solid var(--line);padding:24px 15px;display:flex;flex-direction:column;z-index:10}.brand{padding:4px 12px 25px;border-bottom:1px solid var(--line);margin-bottom:20px}.brand-mark{font-size:20px;font-weight:900;letter-spacing:3px}.brand-sub{color:var(--gold);font-size:10px;letter-spacing:2px;margin-top:3px}.nav-label{font-size:10px;letter-spacing:1.6px;color:#777b85;padding:8px 12px}.nav-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;color:#aeb1b9;padding:11px 12px;margin:2px 0;border-radius:9px;font-weight:650}.nav-btn .ico{width:20px;text-align:center;color:#8e929c}.nav-btn.active{background:#29251d;color:var(--gold2);border:1px solid #4b3e2b}.nav-btn.active .ico{color:var(--gold)}.sidebar-bottom{margin-top:auto;border-top:1px solid var(--line);padding:15px 9px 0;color:var(--muted);font-size:12px}.main{margin-left:245px;min-height:100vh}.topbar{height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;background:#101115;position:sticky;top:0;z-index:5}.eyebrow{font-size:10px;color:var(--gold);letter-spacing:1.7px;font-weight:800;text-transform:uppercase}.page-title{font-size:21px;font-weight:800;letter-spacing:-.4px}.top-actions{display:flex;align-items:center;gap:10px}.user-chip{border:1px solid var(--line);padding:8px 11px;border-radius:10px;color:var(--muted);font-size:12px}.content{padding:27px 30px;max-width:1600px;margin:auto}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px}.page-head h1{font-size:25px;margin:0 0 5px;letter-spacing:-.6px}.page-head p{margin:0;color:var(--muted)}.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:17px}.stat,.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}.stat{padding:18px}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:27px;font-weight:850;letter-spacing:-.7px;margin:10px 0 5px}.stat-foot{font-size:11px;color:#858a94}.gold{color:var(--gold2)}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.dashboard-grid{grid-template-columns:1.25fr 1fr}.card{padding:19px;margin-bottom:15px;min-width:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.card h2,.card h3{margin:0;font-size:15px}.card p.sub{color:var(--muted);margin:5px 0 0;font-size:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.form-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.span-all{grid-column:1/-1}.form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.toolbar input{max-width:340px}.toolbar select{width:auto;min-width:145px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}table{border-collapse:collapse;width:100%;min-width:720px}th,td{text-align:left;padding:12px 13px;border-bottom:1px solid #292c32;vertical-align:top}th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#9fa3ad;background:#191b20;white-space:nowrap}td{font-size:12px;color:#d7d8dc}tbody tr:hover{background:#1a1c21}tbody tr:last-child td{border-bottom:0}.muted{color:var(--muted)}.subline{font-size:11px;color:#8f949e;margin-top:3px}.badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:30px;font-size:10px;font-weight:800;white-space:nowrap;border:1px solid #454850;background:#272a30;color:#d2d4da}.badge.green{background:#1b332b;border-color:#285542;color:#a6e4c5}.badge.red{background:#3d2327;border-color:#65343b;color:#ffb4b8}.badge.gold{background:#352d20;border-color:#5e4b2d;color:#ead2a5}.badge.blue{background:#1e2b3b;border-color:#344b67;color:#b8d6ff}.empty{padding:35px;text-align:center;color:#888d98}.notice{position:fixed;right:22px;top:88px;z-index:100;max-width:440px;padding:13px 17px;background:#202329;border:1px solid #444954;border-radius:11px;box-shadow:0 12px 40px #0008}.notice.error{border-color:#804249;color:#ffd5d7}.notice.success{border-color:#37664f;color:#b7f2d1}.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at top right,#312719 0,transparent 42%),var(--bg)}.login-box{width:min(480px,100%);padding:32px;background:#15171c;border:1px solid #35302a;border-radius:20px;box-shadow:0 30px 100px #0008}.login-box .brand{padding:0 0 20px;margin-bottom:22px}.login-box h1{font-size:24px;margin:0 0 6px}.login-box p{color:var(--muted);margin:0 0 22px}.login-box .form-grid{grid-template-columns:1fr}.login-note{font-size:11px;color:#9296a0;line-height:1.6;margin-top:17px}.login-error{margin-top:12px;color:#ffb5b9;font-size:12px}.mobile-menu{display:none}.split{display:grid;grid-template-columns:1fr 1fr;gap:15px}.inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.action-stack{display:flex;gap:5px;flex-wrap:wrap}.pill-note{padding:12px 14px;background:#24231f;border:1px solid #4b402e;border-radius:10px;color:#d7c5a3;font-size:12px;margin-bottom:15px}.item-row{display:grid;grid-template-columns:2fr .6fr .8fr .8fr auto;gap:8px;align-items:end;padding:10px;background:#101216;border:1px solid var(--line);border-radius:10px;margin:8px 0}.modal-backdrop{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:50;padding:18px}.modal{background:var(--panel);border:1px solid #45413a;border-radius:16px;width:min(760px,100%);max-height:90vh;overflow:auto;padding:22px}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-head h2{font-size:18px;margin:0}.mini-metric{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.mini-metric:last-child{border:0}.warning-text{font-size:11px;color:#e4c995}.loading{opacity:.65;pointer-events:none}.footer-note{font-size:11px;color:#777d87;margin-top:20px}.mobile-bottom{display:none}
+@media(max-width:1100px){.sidebar{width:205px}.main{margin-left:205px}.content{padding:22px}.topbar{padding:0 22px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.form-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.sidebar{display:none}.main{margin:0}.topbar{height:67px;padding:0 15px}.content{padding:17px 13px 35px}.page-title{font-size:17px}.page-head{flex-direction:column}.page-head h1{font-size:22px}.stats{gap:9px}.stat{padding:13px}.stat-value{font-size:22px}.card{padding:14px}.form-grid,.form-grid.three,.form-grid.four,.split{grid-template-columns:1fr}.span-all{grid-column:auto}.user-chip{display:none}.mobile-menu{display:inline-flex}.top-actions button{padding:8px 10px}.item-row{grid-template-columns:1fr 1fr}.item-row .item-product{grid-column:1/-1}.item-row .item-remove{grid-column:1/-1}.mobile-bottom{display:flex;position:fixed;bottom:0;left:0;right:0;background:#111216;border-top:1px solid var(--line);padding:6px;z-index:15;justify-content:space-around;gap:4px}.mobile-bottom button{background:transparent;color:#aeb1b9;border:0;padding:8px 4px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px}.mobile-bottom button.active{color:var(--gold2)}.mobile-bottom span{font-size:17px}.content{padding-bottom:85px}}
+</style></head>
 <body>
-
-<header>
-  <b>LUXERA <small style="color:#bbb">ADMIN</small></b>
-  <button id="logout" class="alt hidden" style="width:auto">Sign out</button>
-</header>
-
-<main class="wrap">
-<section id="login" class="card">
-  <h2>Luxera Admin Login</h2>
-  <p>Supabase details enter karo.</p>
-  <div class="row">
-    <input id="url" placeholder="Supabase Project URL">
-    <input id="key" placeholder="Supabase Publishable / Anon Key">
-  </div>
-  <div class="row">
-    <input id="email" type="email" placeholder="Admin email">
-    <input id="pass" type="password" placeholder="Password">
-  </div>
-  <button id="connect">Connect & Sign In</button>
-  <div id="loginmsg" class="msg hidden"></div>
-</section>
-
-<section id="app" class="hidden">
-  <div id="msg" class="msg hidden"></div>
-  <nav>
-    <button onclick="show('Dashboard')">Dashboard</button>
-    <button onclick="show('Products')">Products</button>
-    <button onclick="show('Orders')">Orders / COD</button>
-    <button onclick="show('Expenses')">Expenses</button>
-    <button onclick="show('Reports')">Export Reports</button>
-  </nav>
-  <div id="view"></div>
-</section>
-</main>
-
+<div id="loginScreen" class="login-screen"><div class="login-box"><div class="brand"><div class="brand-mark">LUXERA</div><div class="brand-sub">BY FAIZAN Â· BUSINESS OS</div></div><h1>Welcome back.</h1><p>Secure business management workspace.</p><div class="form-grid"><label>Supabase Project URL<input id="sbUrl" type="url" placeholder="https://your-project.supabase.co" autocomplete="url"></label><label>Supabase Publishable / Anon Key<input id="sbKey" type="password" placeholder="sb_publishable_â€¦ or anon key" autocomplete="off"></label><label>Admin email<input id="loginEmail" type="email" value="luxeramanagement@gmail.com" autocomplete="username"></label><label>Password<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your Supabase password"></label></div><button id="loginBtn" style="width:100%;margin-top:18px">Connect & Sign In</button><div id="loginError" class="login-error hidden"></div><div class="login-note">Access is controlled by your existing Supabase Auth and Row Level Security policies. This panel does not create or change database permissions. Use only your project's publishable/anon key â€” never paste a service-role key here.</div></div></div>
+<div id="appShell" class="app-shell hidden"><aside class="sidebar"><div class="brand"><div class="brand-mark">LUXERA</div><div class="brand-sub">BY FAIZAN Â· BUSINESS OS</div></div><div class="nav-label">WORKSPACE</div><button class="nav-btn active" data-page="Dashboard"><span class="ico">â—ˆ</span>Dashboard</button><button class="nav-btn" data-page="Orders"><span class="ico">â–¤</span>Orders & COD</button><button class="nav-btn" data-page="Products"><span class="ico">â—‡</span>Products & Stock</button><button class="nav-btn" data-page="Customers"><span class="ico">â™™</span>Customers</button><button class="nav-btn" data-page="Suppliers"><span class="ico">â™§</span>Suppliers</button><button class="nav-btn" data-page="Returns"><span class="ico">â†¶</span>Returns & Inspection</button><div class="nav-label" style="margin-top:12px">FINANCE & CONTROL</div><button class="nav-btn" data-page="Transactions"><span class="ico">â‡„</span>Money Ledgers</button><button class="nav-btn" data-page="Expenses"><span class="ico">â†—</span>Expenses</button><button class="nav-btn" data-page="Inventory"><span class="ico">â–¦</span>Stock Movements</button><button class="nav-btn" data-page="Reports"><span class="ico">â–§</span>Reports & Export</button><div class="sidebar-bottom"><div class="gold" style="font-weight:800;letter-spacing:1px">LUXERA BY FAIZAN</div><div style="margin-top:5px">PKR Â· Supabase connected</div><div id="sideEmail" style="margin-top:8px;overflow-wrap:anywhere"></div></div></aside>
+<main class="main"><header class="topbar"><div><div class="eyebrow">LUXERA / MANAGEMENT</div><div id="topTitle" class="page-title">Dashboard</div></div><div class="top-actions"><span class="user-chip" id="userChip">Admin session</span><button class="btn-ghost" id="refreshBtn">â†» Refresh</button><button class="btn-ghost" id="logoutBtn">Sign out</button></div></header><div id="notice" class="notice hidden"></div><div id="content" class="content"></div></main><nav id="mobileNav" class="mobile-bottom"><button data-page="Dashboard" class="active"><span>â—ˆ</span>Home</button><button data-page="Orders"><span>â–¤</span>Orders</button><button data-page="Products"><span>â—‡</span>Stock</button><button data-page="Transactions"><span>â‡„</span>Ledgers</button><button data-page="Reports"><span>â–§</span>Reports</button></nav></div>
+<div id="modalHost"></div>
 <script>
-const $=id=>document.getElementById(id);
-let db=null,products=[],orders=[],items=[],expenses=[],current='Dashboard';
-
-const money=n=>'Rs. '+Number(n||0).toLocaleString('en-PK',{maximumFractionDigits:2});
-
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
-'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-}[c]));
-
-function notice(s){
-  $('msg').textContent=s;
-  $('msg').classList.remove('hidden');
-  setTimeout(()=>$('msg').classList.add('hidden'),5000);
-}
-
-function loginNotice(s){
-  $('loginmsg').textContent=s;
-  $('loginmsg').classList.remove('hidden');
-}
-
-async function load(){
-  let a=await Promise.all([
-    db.from('products').select('*').order('name'),
-    db.from('orders').select('*').order('created_at',{ascending:false}),
-    db.from('order_items').select('*'),
-    db.from('expenses').select('*').order('expense_date',{ascending:false})
-  ]);
-
-  for(let r of a) if(r.error) throw r.error;
-
-  [products,orders,items,expenses]=a.map(x=>x.data||[]);
-  show(current);
-}
-
-$('url').value=localStorage.getItem('lxurl')||'';
-$('key').value=localStorage.getItem('lxkey')||'';
-
-$('connect').onclick=async()=>{
-  try{
-    let u=$('url').value.trim(),k=$('key').value.trim();
-    if(!u||!k) throw Error('Supabase URL aur key enter karo.');
-
-    localStorage.setItem('lxurl',u);
-    localStorage.setItem('lxkey',k);
-
-    db=window.supabase.createClient(u,k);
-
-    let {data,error}=await db.auth.signInWithPassword({
-      email:$('email').value.trim(),
-      password:$('pass').value
-    });
-
-    if(error) throw error;
-    if(!data.session) throw Error('Login session nahi mili.');
-
-    $('login').classList.add('hidden');
-    $('app').classList.remove('hidden');
-    $('logout').classList.remove('hidden');
-
-    await load();
-  }catch(e){
-    loginNotice(e.message||String(e));
-  }
-};
-
-$('logout').onclick=async()=>{
-  if(db) await db.auth.signOut();
-  location.reload();
-};
-
-function field(label,id,type='text',value='',required=false){
-  return `<label>${label}
-    <input id="${id}" type="${type}" value="${esc(value)}"
-    ${required?'required':''}>
-  </label>`;
-}
-
-function table(headers,rows){
-  return `<div class="table"><table>
-  <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-  <tbody>${rows||'<tr><td colspan="10">No records yet.</td></tr>'}</tbody>
-  </table></div>`;
-}
-
-function show(p){
-  current=p;
-  let v=$('view');
-
-  if(p==='Dashboard'){
-    v.innerHTML=`
-    <h2>Dashboard</h2>
-    <div class="stats">
-      <div class="stat">Products<strong>${products.length}</strong></div>
-      <div class="stat">Units in stock<strong>${products.reduce((s,p)=>s+Number(p.stock),0)}</strong></div>
-      <div class="stat">Low stock<strong>${products.filter(p=>p.stock<=p.reorder_level).length}</strong></div>
-      <div class="stat">Orders<strong>${orders.length}</strong></div>
-      <div class="stat">Pending COD<strong>${orders.filter(o=>o.payment_status==='Pending').length}</strong></div>
-      <div class="stat">Expenses<strong>${money(expenses.reduce((s,e)=>s+Number(e.amount),0))}</strong></div>
-    </div>
-    <div class="card" style="margin-top:14px">
-      Courier: Leopards<br>
-      Default customer delivery fee: Rs. 200<br>
-      Estimated COD deduction: 4% of Total COD.<br>
-      Actual courier charges and settlement are entered separately.
-    </div>`;
-  }
-
-  else if(p==='Products'){
-    v.innerHTML=`
-    <h2>Products & Inventory</h2>
-    <div class="card">
-      <h3>Add Product</h3>
-      <div class="row">
-        ${field('SKU','sku','text','',true)}
-        ${field('Product name','pname','text','',true)}
-        <label>Category
-          <select id="cat">
-            <option>Perfume</option><option>Watch</option>
-            <option>Wallet</option><option>Hoodie</option>
-            <option>Sweatshirt</option><option>Sweater</option>
-            <option>Jacket</option><option>Office</option><option>Other</option>
-          </select>
-        </label>
-      </div>
-      <div class="row">
-        ${field('Cost price','cost','number','0')}
-        ${field('Sale price','sale','number','0')}
-        ${field('Opening stock','stock','number','0')}
-        ${field('Low-stock alert','reorder','number','3')}
-      </div>
-      <button onclick="addProduct()">Save Product</button>
-    </div>
-    ${table(['SKU','Product','Category','Cost','Price','Stock','Action'],
-    products.map(p=>`<tr>
-      <td>${esc(p.sku)}</td><td>${esc(p.name)}</td>
-      <td>${esc(p.category)}</td><td>${money(p.cost_price)}</td>
-      <td>${money(p.sale_price)}</td><td>${p.stock}</td>
-      <td><button class="alt" onclick="stockIn('${p.id}')">Stock +</button></td>
-    </tr>`).join(''))}`;
-  }
-
-  else if(p==='Orders'){
-    v.innerHTML=`
-    <h2>Orders / COD</h2>
-    <div class="card">
-      <h3>Create Order</h3>
-      <div class="row">
-        ${field('Order number','onum','text','LX-'+Date.now().toString().slice(-7),true)}
-        ${field('Customer name','cust','text','',true)}
-        ${field('Phone','phone')}
-      </div>
-      <div class="row">
-        <label>Product
-          <select id="prod">
-            ${products.map(x=>`<option value="${x.id}">
-              ${esc(x.name)} / ${esc(x.sku)} / stock ${x.stock} / ${money(x.sale_price)}
-            </option>`).join('')}
-          </select>
-        </label>
-        ${field('Quantity','qty','number','1',true)}
-        ${field('Customer delivery fee','df','number','200',true)}
-        ${field('COD deduction %','rate','number','4',true)}
-      </div>
-      ${field('Address','addr')}
-      <button onclick="addOrder()">Create Order</button>
-      <small>Stock dispatch par minus hoga. Actual courier fee dispatch ke waqt enter karo.</small>
-    </div>
-    ${table(['Order','Customer','COD','Status','Payment','Tracking','Actions'],
-    orders.map(o=>`<tr>
-      <td>${esc(o.order_number)}<br><small>Leopards</small></td>
-      <td>${esc(o.customer_name)}<br>${esc(o.customer_phone)}</td>
-      <td>${money(o.total_cod)}<br><small>4% estimate: ${money(o.total_cod*o.deduction_rate/100)}</small></td>
-      <td>${esc(o.status)}</td>
-      <td>${esc(o.payment_status)}</td>
-      <td>${esc(o.tracking_number||'—')}</td>
-      <td>
-        <button onclick="dispatch('${o.id}')" ${o.status!=='Pending'?'disabled':''}>Dispatch</button>
-        <button class="alt" onclick="delivered('${o.id}')" ${o.status!=='Dispatched'?'disabled':''}>Delivered</button>
-        <button class="red" onclick="returnOrder('${o.id}')" ${!['Dispatched','Delivered'].includes(o.status)?'disabled':''}>Return</button>
-        <button class="alt" onclick="settle('${o.id}')">COD Settle</button>
-      </td>
-    </tr>`).join(''))}`;
-  }
-
-  else if(p==='Expenses'){
-    v.innerHTML=`
-    <h2>Expenses</h2>
-    <div class="card">
-      <div class="row">
-        <label>Date<input id="edate" type="date" value="${new Date().toISOString().slice(0,10)}"></label>
-        <label>Category
-          <select id="ecat">
-            <option>Packaging</option><option>Advertising</option>
-            <option>Office supplies</option><option>Product purchase</option>
-            <option>Courier</option><option>Equipment</option><option>Other</option>
-          </select>
-        </label>
-        ${field('Amount','eamount','number','',true)}
-        ${field('Description','edesc','text','',true)}
-      </div>
-      <button onclick="addExpense()">Save Expense</button>
-    </div>
-    ${table(['Date','Category','Description','Amount'],
-    expenses.map(e=>`<tr>
-      <td>${esc(e.expense_date)}</td><td>${esc(e.category)}</td>
-      <td>${esc(e.description)}</td><td>${money(e.amount)}</td>
-    </tr>`).join(''))}`;
-  }
-
-  else{
-    v.innerHTML=`
-    <h2>Export Reports</h2>
-    <div class="card">
-      ${['products','orders','order_items','expenses','stock_movements'].map(t=>
-      `<button onclick="exportCSV('${t}')">Export ${t.replace('_',' ')} CSV</button>`).join(' ')}
-      <p><small>CSV files Excel mein open ho jati hain.</small></p>
-    </div>`;
-  }
-}
-
-async function addProduct(){
-  try{
-    let d={
-      sku:$('sku').value.trim().toUpperCase(),
-      name:$('pname').value.trim(),
-      category:$('cat').value,
-      cost_price:+$('cost').value||0,
-      sale_price:+$('sale').value||0,
-      stock:+$('stock').value||0,
-      reorder_level:+$('reorder').value||0
-    };
-    if(!d.sku||!d.name) throw Error('SKU aur product name required hain.');
-    if(d.stock<0||d.cost_price<0||d.sale_price<0) throw Error('Negative amount allowed nahi.');
-
-    let {data,error}=await db.from('products').insert(d).select().single();
-    if(error) throw error;
-
-    if(d.stock){
-      let r=await db.from('stock_movements').insert({
-        product_id:data.id,movement_type:'Opening',
-        quantity:d.stock,note:'Opening stock'
-      });
-      if(r.error) throw r.error;
-    }
-    await load();notice('Product saved.');
-  }catch(e){notice(e.message)}
-}
-
-async function stockIn(id){
-  let n=prompt('Kitne units add karne hain?');
-  if(n===null)return;
-  let q=Number(n),p=products.find(x=>x.id===id);
-  if(!Number.isInteger(q)||q<1)return alert('Whole quantity enter karo.');
-
-  try{
-    let {error}=await db.from('products').update({stock:Number(p.stock)+q}).eq('id',id);
-    if(error)throw error;
-    let r=await db.from('stock_movements').insert({
-      product_id:id,movement_type:'Stock In',quantity:q,note:'Manual stock-in'
-    });
-    if(r.error)throw r.error;
-    await load();notice('Stock updated.');
-  }catch(e){notice(e.message)}
-}
-
-async function addOrder(){
-  try{
-    if(!products.length)throw Error('Pehle product add karo.');
-
-    let p=products.find(x=>x.id===$('prod').value);
-    let q=+$('qty').value,fee=+$('df').value,rate=+$('rate').value;
-
-    if(!p||!Number.isInteger(q)||q<1||q>p.stock)
-      throw Error('Quantity invalid hai ya stock kam hai.');
-
-    let sub=q*Number(p.sale_price),total=sub+fee;
-    let number=$('onum').value.trim();
-
-    if(!number||!$('cust').value.trim())
-      throw Error('Order number aur customer name required hain.');
-
-    let o={
-      order_number:number,
-      customer_name:$('cust').value.trim(),
-      customer_phone:$('phone').value.trim(),
-      address:$('addr').value.trim(),
-      courier:'Leopards',
-      status:'Pending',
-      payment_status:'Pending',
-      product_subtotal:sub,
-      customer_delivery_fee:fee,
-      total_cod:total,
-      deduction_rate:rate,
-      deduction_basis:'Total COD'
-    };
-
-    let {data,error}=await db.from('orders').insert(o).select().single();
-    if(error)throw error;
-
-    let r=await db.from('order_items').insert({
-      order_id:data.id,product_id:p.id,
-      product_name:p.name,sku:p.sku,quantity:q,
-      unit_sale_price:p.sale_price,unit_cost_price:p.cost_price
-    });
-
-    if(r.error){
-      await db.from('orders').delete().eq('id',data.id);
-      throw r.error;
-    }
-
-    await load();notice('Order created; stock will reduce on dispatch.');
-  }catch(e){notice(e.message)}
-}
-
-async function dispatch(id){
-  let track=prompt('Leopards tracking / consignment number?','');
-  if(track===null)return;
-  let fee=prompt('Actual Leopards outbound fee (Rs.)?','300');
-  if(fee===null)return;
-
-  try{
-    let {error}=await db.rpc('dispatch_order',{
-      p_order_id:id,
-      p_tracking_number:track||'',
-      p_outbound_fee:Number(fee)||0
-    });
-    if(error)throw error;
-    await load();notice('Dispatched; stock deducted once.');
-  }catch(e){notice(e.message)}
-}
-
-async function delivered(id){
-  try{
-    let {error}=await db.from('orders')
-      .update({status:'Delivered',delivered_at:new Date().toISOString()})
-      .eq('id',id).eq('status','Dispatched');
-    if(error)throw error;
-    await load();notice('Marked delivered.');
-  }catch(e){notice(e.message)}
-}
-
-async function returnOrder(id){
-  let fee=prompt('Actual return courier fee (Rs.)?','0');
-  if(fee===null)return;
-  let note=prompt('Return note / item condition:','Returned parcel')||'';
-
-  try{
-    let {error}=await db.rpc('return_order',{
-      p_order_id:id,p_return_fee:Number(fee)||0,p_note:note
-    });
-    if(error)throw error;
-    await load();notice('Return recorded and stock restored once. Check item condition before reselling.');
-  }catch(e){notice(e.message)}
-}
-
-async function settle(id){
-  let o=orders.find(x=>x.id===id);
-  let est=Number(o.total_cod)*Number(o.deduction_rate)/100;
-  let fee=Number(o.actual_outbound_courier_fee||0);
-
-  let tax=prompt('Actual deduction from Leopards statement (Rs.)?',String(est));
-  if(tax===null)return;
-
-  let received=prompt('Actual amount received (Rs.)?',
-    String(Math.max(0,Number(o.total_cod)-Number(tax)-fee)));
-  if(received===null)return;
-
-  let status=prompt('Payment status: Settled / Partial / Not received','Settled');
-  if(!status)return;
-
-  try{
-    let {error}=await db.from('orders').update({
-      actual_deduction:Number(tax),
-      actual_settlement:Number(received),
-      payment_status:status
-    }).eq('id',id);
-
-    if(error)throw error;
-    await load();notice('COD settlement saved.');
-  }catch(e){notice(e.message)}
-}
-
-async function addExpense(){
-  try{
-    let d={
-      expense_date:$('edate').value,
-      category:$('ecat').value,
-      amount:+$('eamount').value,
-      description:$('edesc').value.trim()
-    };
-    if(!d.description||d.amount<0)throw Error('Expense details check karo.');
-
-    let {error}=await db.from('expenses').insert(d);
-    if(error)throw error;
-    await load();notice('Expense saved.');
-  }catch(e){notice(e.message)}
-}
-
-async function exportCSV(t){
-  try{
-    let rows;
-
-    if(t==='products')rows=products;
-    else if(t==='orders')rows=orders;
-    else if(t==='order_items')rows=items;
-    else if(t==='expenses')rows=expenses;
-    else{
-      let {data,error}=await db.from('stock_movements')
-        .select('*').order('created_at',{ascending:false});
-      if(error)throw error;
-      rows=data||[];
-    }
-
-    if(!rows.length)return notice('Export karne ke liye data nahi.');
-
-    let keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
-    let cell=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
-    let csv='\ufeff'+[
-      keys.map(cell).join(','),
-      ...rows.map(r=>keys.map(k=>cell(r[k])).join(','))
-    ].join('\r\n');
-
-    let a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-    a.download='luxera-'+t+'.csv';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }catch(e){notice(e.message)}
-}
-
-window.show=show;
-window.addProduct=addProduct;
-window.stockIn=stockIn;
-window.addOrder=addOrder;
-window.dispatch=dispatch;
-window.delivered=delivered;
-window.returnOrder=returnOrder;
-window.settle=settle;
-window.addExpense=addExpense;
-window.exportCSV=exportCSV;
-</script>
-</body>
-</html>
+'use strict';
+const $=id=>document.getElementById(id);let db=null,session=null,currentPage='Dashboard',cache={products:[],orders:[],items:[],expenses:[],customers:[],suppliers:[],customerTx:[],supplierTx:[],returns:[],returnItems:[],stockMovements:[],inventoryConditions:[]},noticeTimer=null,orderLines=0;
+const ADMIN_EMAIL='luxeramanagement@gmail.com';const money=n=>'Rs. '+Number(n||0).toLocaleString('en-PK',{minimumFractionDigits:0,maximumFractionDigits:2});const number=n=>Number(n||0);const today=()=>new Date().toISOString().slice(0,10);const uid=()=>Math.random().toString(36).slice(2,9);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const dateFmt=s=>s?new Date(s).toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'}):'â€”';const dateTime=s=>s?new Date(s).toLocaleString('en-PK',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'â€”';const statusBadge=s=>{let v=String(s||'Unknown'),c=['Delivered','Settled','resolved','sellable','accepted','credited','repaired','restocked'].includes(v)?'green':['Cancelled','Returned','rejected','written_off','damaged'].includes(v)?'red':['Dispatched','Partial','inspecting','in_transit','repair','pending','approved','received'].includes(v)?'gold':'blue';return `<span class="badge ${c}">${esc(v)}</span>`};const table=(heads,rows,empty='No records found.')=>`<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${heads.length}" class="empty">${esc(empty)}</td></tr>`}</tbody></table></div>`;const field=(label,id,type='text',value='',attrs='')=>`<label>${label}<input id="${id}" type="${type}" value="${esc(value)}" ${attrs}></label>`;const selectField=(label,id,opts,value='')=>`<label>${label}<select id="${id}">${opts.map(o=>{let v=typeof o==='string'?o:o.value,t=typeof o==='string'?o:o.label;return `<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(t)}</option>`}).join('')}</select></label>`;const val=id=>$(id)?.value??'';const setBusy=(btn,busy,text='Workingâ€¦')=>{if(!btn)return;btn.disabled=busy;if(busy){btn.dataset.old=btn.textContent;btn.textContent=text}else if(btn.dataset.old){btn.textContent=btn.dataset.old;delete btn.dataset.old}};
+function toast(msg,type='success'){let n=$('notice');n.textContent=msg;n.className='notice '+(type==='error'?'error':'success');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>n.classList.add('hidden'),5200)}function loginError(msg){$('loginError').textContent=msg;$('loginError').classList.remove('hidden')}
+async function guarded(fn){try{return await fn()}catch(e){toast(e?.message||String(e),'error');console.error(e)}}
+function setPage(page){currentPage=page;$('topTitle').textContent=page==='Dashboard'?'Dashboard':page==='Orders'?'Orders & COD':page==='Products'?'Products & Stock':page==='Transactions'?'Money Ledgers':page==='Inventory'?'Stock Movements':page==='Returns'?'Returns & Inspection':page;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));renderPage()}
+async function loadData(){if(!db)throw Error('Supabase is not connected.');const specs=[['products','products','name'],['orders','orders','created_at'],['items','order_items','created_at'],['expenses','expenses','expense_date'],['customers','customers','name'],['suppliers','suppliers','name'],['customerTx','customer_transactions','transaction_date'],['supplierTx','supplier_transactions','transaction_date'],['returns','returns','created_at'],['returnItems','return_items','created_at'],['stockMovements','stock_movements','created_at'],['inventoryConditions','inventory_conditions','created_at']];const results=await Promise.all(specs.map(async([key,tableName,sort])=>{let q=db.from(tableName).select('*').order(sort,{ascending:false});let r=await q;if(r.error)throw new Error(tableName+': '+r.error.message);return[key,r.data||[]]}));results.forEach(([k,v])=>cache[k]=v);renderPage()}
+async function connectLogin(){const btn=$('loginBtn');setBusy(btn,true,'Connectingâ€¦');$('loginError').classList.add('hidden');try{const url=val('sbUrl').trim(),key=val('sbKey').trim(),email=val('loginEmail').trim(),password=val('loginPassword');if(!url||!key||!email||!password)throw Error('Supabase URL, key, email aur password complete karein.');if(email.toLowerCase()!==ADMIN_EMAIL)throw Error('Existing RLS policies sirf '+ADMIN_EMAIL+' ko allow karti hain.');localStorage.setItem('luxera_sb_url',url);localStorage.setItem('luxera_sb_key',key);db=window.supabase.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;session=data.session;if(!session)throw Error('Login session nahi mili.');await openApp()}catch(e){loginError(e.message||String(e))}finally{setBusy(btn,false)}}
+async function openApp(){ $('loginScreen').classList.add('hidden');$('appShell').classList.remove('hidden');$('sideEmail').textContent=session?.user?.email||'';$('userChip').textContent=session?.user?.email||'Admin';await loadData()}
+async function logout(){if(db)await db.auth.signOut();session=null;db=null;$('appShell').classList.add('hidden');$('loginScreen').classList.remove('hidden');$('loginPassword').value=''}
+function stat(label,value,foot='',tone=''){return `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value ${tone}">${value}</div><div class="stat-foot">${foot}</div></div>`}
+function pageHead(title,sub,action=''){return `<div class="page-head"><div><h1>${title}</h1><p>${sub}</p></div>${action}</div>`}
+function renderPage(){if(!$('content')||!db)return;const c=$('content');if(currentPage==='Dashboard')c.innerHTML=dashboardHTML();else if(currentPage==='Products')c.innerHTML=productsHTML();else if(currentPage==='Orders')c.innerHTML=ordersHTML();else if(currentPage==='Customers')c.innerHTML=customersHTML();else if(currentPage==='Suppliers')c.innerHTML=suppliersHTML();else if(currentPage==='Returns')c.innerHTML=returnsHTML();else if(currentPage==='Transactions')c.innerHTML=transactionsHTML();else if(currentPage==='Expenses')c.innerHTML=expensesHTML();else if(currentPage==='Inventory')c.innerHTML=inventoryHTML();else if(currentPage==='Reports')c.innerHTML=reportsHTML();bindPageEvents()}
+function dashboardHTML(){const p=cache.products,o=cache.orders,e=cache.expenses,low=p.filter(x=>number(x.stock)<=number(x.reorder_level)),pending=o.filter(x=>x.status==='Pending'),delivered=o.filter(x=>x.status==='Delivered'),sales=delivered.reduce((s,x)=>s+number(x.product_subtotal),0),exp=e.reduce((s,x)=>s+number(x.amount),0),paid=cache.customerTx.filter(x=>x.transaction_type==='payment').reduce((s,x)=>s+number(x.amount),0),supplierBalance=cache.supplierTx.reduce((s,x)=>s+number(x.amount),0);let recent=[...o].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,7);return `${pageHead('Good business starts with clarity.','Your Luxera operations at a glance.',`<button data-action="new-order">ï¼‹ New order</button>`)}<div class="grid stats">${stat('Total orders',o.length,'All order statuses')}${stat('Product catalogue',p.length,'Active inventory records')}${stat('Delivered product sales',money(sales),'Delivered orders Â· product subtotal','gold')}${stat('Pending dispatch',pending.length,'Awaiting dispatch',pending.length?'gold':'green')}${stat('Low-stock alerts',low.length,'At or below reorder level',low.length?'red':'green')}${stat('Recorded expenses',money(exp),'All expense entries')}${stat('Customer payments',money(paid),'Customer transaction ledger','green')}${stat('Supplier ledger balance',money(supplierBalance),'Positive = payable balance','gold') }</div><div class="grid dashboard-grid"><section class="card"><div class="card-head"><div><h2>Recent orders</h2><p class="sub">Latest activity in your order book</p></div><button class="btn-ghost btn-small" data-page="Orders">View all</button></div>${table(['Order / Date','Customer','COD total','Status'],recent.map(x=>`<tr><td><b>${esc(x.order_number)}</b><div class="subline">${dateFmt(x.created_at)}</div></td><td>${esc(x.customer_name)}<div class="subline">${esc(x.customer_phone)}</div></td><td>${money(x.total_cod)}</td><td>${statusBadge(x.status)}</td></tr>`).join(''),'No orders yet.')}</section><section class="card"><div class="card-head"><div><h2>Inventory watch</h2><p class="sub">Products requiring a stock review</p></div><button class="btn-ghost btn-small" data-page="Products">Inventory</button></div>${low.length?low.slice(0,8).map(x=>`<div class="mini-metric"><div><b>${esc(x.name)}</b><div class="subline">${esc(x.sku)} Â· Reorder at ${number(x.reorder_level)}</div></div><div class="red" style="font-weight:800">${number(x.stock)} left</div></div>`).join(''):'<div class="empty">All products are above their reorder levels.</div>'}<div class="pill-note" style="margin-top:14px">Stock only reduces when an order is dispatched. Returns require item-level inspection before stock can be restored.</div></section></div><div class="grid dashboard-grid"><section class="card"><div class="card-head"><div><h2>Order pipeline</h2><p class="sub">Current order status distribution</p></div></div>${['Pending','Dispatched','Delivered','Returned','Cancelled'].map(s=>{let n=o.filter(x=>x.status===s).length,pc=o.length?Math.round(n/o.length*100):0;return `<div class="mini-metric"><span>${statusBadge(s)}</span><div style="flex:1;margin:0 12px;background:#292c32;height:5px;border-radius:8px;overflow:hidden"><div style="width:${pc}%;height:100%;background:var(--gold)"></div></div><b>${n}</b></div>`}).join('')}</section><section class="card"><div class="card-head"><div><h2>Finance snapshot</h2><p class="sub">Recorded ledger totals â€” not a tax or profit statement</p></div></div><div class="mini-metric"><span class="muted">Customer payments</span><b class="green">${money(paid)}</b></div><div class="mini-metric"><span class="muted">Expenses entered</span><b>${money(exp)}</b></div><div class="mini-metric"><span class="muted">Supplier net ledger</span><b class="gold">${money(supplierBalance)}</b></div><div class="mini-metric"><span class="muted">Returns awaiting inspection</span><b>${cache.returnItems.filter(x=>x.condition==='pending').length}</b></div><p class="footer-note">Cash received, COD settlements and supplier liabilities are tracked separately. Delivered sales are not the same as collected cash.</p></section></div>`}
+function productsHTML(){return `${pageHead('Products & inventory','Manage catalogue pricing, variants, opening stock and replenishment.',`<button data-action="new-product">ï¼‹ Add product</button>`)}<div class="toolbar"><input id="productSearch" placeholder="Search SKU, name or categoryâ€¦"><select id="productFilter"><option value="all">All stock levels</option><option value="low">Low stock</option><option value="out">Out of stock</option></select><span class="muted" id="productCount"></span></div><div id="productsTable"></div><div class="card" style="margin-top:15px"><div class="card-head"><div><h2>Stock movement principles</h2><p class="sub">Every manual stock change must have a movement record.</p></div></div><div class="pill-note">Dispatch deducts own-stock order items through the existing atomic <b>dispatch_order</b> RPC. Dropshipping lines do not reduce your inventory. Use Stock In only for physical goods received.</div></div>`}
+function drawProducts(){const q=(val('productSearch')||'').toLowerCase(),f=val('productFilter')||'all';const rows=cache.products.filter(p=>(`${p.sku} ${p.name} ${p.category} ${p.variant}`.toLowerCase().includes(q))&&(f==='all'||(f==='low'&&number(p.stock)<=number(p.reorder_level))||(f==='out'&&number(p.stock)===0)));$('productCount').textContent=`${rows.length} products`; $('productsTable').innerHTML=table(['Product','Category / variant','Cost','Sale price','Stock','Actions'],rows.map(p=>`<tr><td><b>${esc(p.name)}</b><div class="subline">${esc(p.sku)}</div></td><td>${esc(p.category)}<div class="subline">${esc(p.variant||'â€”')}</div></td><td>${money(p.cost_price)}</td><td class="gold">${money(p.sale_price)}</td><td><b>${number(p.stock)}</b><div class="subline">Reorder at ${number(p.reorder_level)} ${number(p.stock)<=number(p.reorder_level)?'<span class="red">Â· Low</span>':''}</div></td><td><div class="action-stack"><button class="btn-ghost btn-small" data-action="stock-in" data-id="${p.id}">Stock +</button><button class="btn-ghost btn-small" data-action="edit-product" data-id="${p.id}">Edit</button></div></td></tr>`).join(''))}
+function ordersHTML(){return `${pageHead('Orders & COD','Create orders, dispatch parcels, record delivery, returns and customer collections.',`<button data-action="new-order">ï¼‹ Create order</button>`)}<div class="stats grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">${stat('Pending',cache.orders.filter(x=>x.status==='Pending').length,'Ready for dispatch')}${stat('Dispatched',cache.orders.filter(x=>x.status==='Dispatched').length,'In transit','gold')}${stat('Delivered',cache.orders.filter(x=>x.status==='Delivered').length,'Delivery marked','green')}</div><div class="toolbar"><input id="orderSearch" placeholder="Search order, customer, phone, trackingâ€¦"><select id="orderStatus"><option value="all">All statuses</option>${['Pending','Dispatched','Delivered','Returned','Cancelled'].map(s=>`<option>${s}</option>`).join('')}</select><select id="orderPay"><option value="all">All payment states</option>${['Pending','Partial','Settled','Not received'].map(s=>`<option>${s}</option>`).join('')}</select></div><div id="ordersTable"></div><p class="footer-note">COD actual settlement is recorded separately from customer payment ledger. Do not mark COD received unless the amount is confirmed from courier/bank records.</p>`}
+function drawOrders(){const q=(val('orderSearch')||'').toLowerCase(),st=val('orderStatus')||'all',pay=val('orderPay')||'all';const rows=[...cache.orders].filter(o=>(`${o.order_number} ${o.customer_name} ${o.customer_phone} ${o.tracking_number}`.toLowerCase().includes(q))&&(st==='all'||o.status===st)&&(pay==='all'||o.payment_status===pay)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));$('ordersTable').innerHTML=table(['Order / created','Customer','COD breakdown','Status / payment','Tracking','Actions'],rows.map(o=>{const count=cache.items.filter(i=>i.order_id===o.id).length;return `<tr><td><b>${esc(o.order_number)}</b><div class="subline">${dateFmt(o.created_at)} Â· ${count} line(s)</div><div class="subline">${esc(o.source||'')}</div></td><td>${esc(o.customer_name)}<div class="subline">${esc(o.customer_phone)}</div><div class="subline">${esc(o.address)}</div></td><td><b>${money(o.total_cod)}</b><div class="subline">Products ${money(o.product_subtotal)} + delivery ${money(o.customer_delivery_fee)}</div><div class="subline">Courier out ${money(o.actual_outbound_courier_fee)} Â· deduction ${money(o.actual_deduction)}</div><div class="subline">Settlement ${money(o.actual_settlement)}</div></td><td>${statusBadge(o.status)}<div style="margin-top:5px">${statusBadge(o.payment_status)}</div></td><td>${esc(o.courier||'â€”')}<div class="subline">${esc(o.tracking_number||'Not assigned')}</div></td><td><div class="action-stack"><button class="btn-ghost btn-small" data-action="order-detail" data-id="${o.id}">Details</button>${o.status==='Pending'?`<button class="btn-small" data-action="dispatch" data-id="${o.id}">Dispatch</button>`:''}${o.status==='Dispatched'?`<button class="btn-small" data-action="delivered" data-id="${o.id}">Delivered</button>`:''}${['Dispatched','Delivered','Returned'].includes(o.status)?`<button class="btn-ghost btn-small" data-action="new-return" data-id="${o.id}">Return</button>`:''}${o.status==='Pending'?`<button class="btn-danger btn-small" data-action="cancel-order" data-id="${o.id}">Cancel</button>`:''}<button class="btn-ghost btn-small" data-action="cod-settle" data-id="${o.id}">COD</button></div></td></tr>`}).join(''))}
+function customersHTML(){return `${pageHead('Customers','Customer directory and order relationships.',`<button data-action="new-customer">ï¼‹ Add customer</button>`)}<div class="toolbar"><input id="customerSearch" placeholder="Search customer, phone or emailâ€¦"></div><div id="customersTable"></div>`}
+function drawCustomers(){const q=(val('customerSearch')||'').toLowerCase(),rows=cache.customers.filter(c=>`${c.name} ${c.phone} ${c.email}`.toLowerCase().includes(q));$('customersTable').innerHTML=table(['Customer','Contact','Address','Orders','Actions'],rows.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="subline">Added ${dateFmt(c.created_at)}</div></td><td>${esc(c.phone||'â€”')}<div class="subline">${esc(c.email||'')}</div></td><td>${esc(c.address||'â€”')}</td><td>${cache.orders.filter(o=>o.customer_id===c.id).length}</td><td><button class="btn-ghost btn-small" data-action="edit-customer" data-id="${c.id}">Edit</button></td></tr>`).join(''))}
+function suppliersHTML(){const bal=id=>cache.supplierTx.filter(t=>t.supplier_id===id).reduce((s,t)=>s+number(t.amount),0);return `${pageHead('Suppliers','Supplier directory and dropshipping payable ledger.',`<button data-action="new-supplier">ï¼‹ Add supplier</button>`)}<div class="toolbar"><input id="supplierSearch" placeholder="Search supplier, code or phoneâ€¦"></div><div id="suppliersTable"></div><div class="pill-note">Supplier payable is created by the database trigger when a dropshipping order becomes Delivered. Supplier payments should be recorded using the existing <b>luxera_pay_supplier</b> RPC â€” do not edit ledger balances directly.</div>`}
+function drawSuppliers(){const q=(val('supplierSearch')||'').toLowerCase(),bal=id=>cache.supplierTx.filter(t=>t.supplier_id===id).reduce((s,t)=>s+number(t.amount),0),rows=cache.suppliers.filter(s=>`${s.name} ${s.supplier_code||''} ${s.phone}`.toLowerCase().includes(q));$('suppliersTable').innerHTML=table(['Supplier','Contact','Status','Net ledger','Actions'],rows.map(s=>`<tr><td><b>${esc(s.name)}</b><div class="subline">${esc(s.supplier_code||'No code')}</div></td><td>${esc(s.contact_person||'â€”')}<div class="subline">${esc(s.phone||'')} ${esc(s.email||'')}</div></td><td>${s.is_active?'<span class="badge green">Active</span>':'<span class="badge red">Inactive</span>'}</td><td class="${bal(s.id)>0?'gold':bal(s.id)<0?'green':''}"><b>${money(bal(s.id))}</b><div class="subline">Positive = payable</div></td><td><div class="action-stack"><button class="btn-ghost btn-small" data-action="edit-supplier" data-id="${s.id}">Edit</button><button class="btn-small" data-action="pay-supplier" data-id="${s.id}">Pay</button></div></td></tr>`).join(''))}
+function returnsHTML(){return `${pageHead('Returns & inspection','Register return requests and inspect each returned line before any stock restoration.',`<button data-action="new-return">ï¼‹ Register return</button>`)}<div class="pill-note">Safety rule: a return case does not automatically restock products. Resolve each return line using <b>sellable</b>, <b>damaged</b>, <b>repair</b> or <b>supplier_claim</b>. Dropship items must use supplier_claim.</div><div class="toolbar"><input id="returnSearch" placeholder="Search return number, order or customerâ€¦"><select id="returnStatus"><option value="all">All return statuses</option>${['requested','approved','in_transit','received','inspecting','resolved','rejected','cancelled'].map(s=>`<option>${s}</option>`).join('')}</select></div><div id="returnsTable"></div><div class="card" style="margin-top:16px"><div class="card-head"><div><h2>Pending inspection lines</h2><p class="sub">Unresolved item-level decisions</p></div></div><div id="pendingReturnItems"></div></div>`}
+function drawReturns(){const q=(val('returnSearch')||'').toLowerCase(),st=val('returnStatus')||'all',rows=cache.returns.filter(r=>{const o=cache.orders.find(o=>o.id===r.order_id);return (`${r.return_number} ${o?.order_number||''} ${o?.customer_name||''}`.toLowerCase().includes(q))&&(st==='all'||r.status===st)});$('returnsTable').innerHTML=table(['Return / date','Order','Reason / tracking','Status','Items','Actions'],rows.map(r=>{const o=cache.orders.find(o=>o.id===r.order_id),its=cache.returnItems.filter(i=>i.return_id===r.id);return `<tr><td><b>${esc(r.return_number)}</b><div class="subline">${dateFmt(r.created_at)}</div></td><td>${esc(o?.order_number||'â€”')}<div class="subline">${esc(o?.customer_name||'')}</div></td><td>${esc(r.reason||'â€”')}<div class="subline">${esc(r.return_courier||'')} ${esc(r.return_tracking_number||'')}</div></td><td>${statusBadge(r.status)}</td><td>${its.length} line(s)<div class="subline">${its.filter(i=>i.condition==='pending').length} pending inspection</div></td><td><div class="action-stack"><button class="btn-ghost btn-small" data-action="return-detail" data-id="${r.id}">Inspect / details</button>${['requested','approved','in_transit','received','inspecting'].includes(r.status)?`<button class="btn-small" data-action="return-status" data-id="${r.id}">Update status</button>`:''}</div></td></tr>`}).join(''));const pending=cache.returnItems.filter(i=>i.condition==='pending');$('pendingReturnItems').innerHTML=pending.length?table(['Product','Return','Qty','Fulfilment','Action'],pending.map(i=>{const ret=cache.returns.find(r=>r.id===i.return_id),oi=cache.items.find(x=>x.id===i.order_item_id),o=cache.orders.find(x=>x.id===ret?.order_id);return `<tr><td>${esc(oi?.product_name||'Unknown product')}<div class="subline">${esc(oi?.sku||'')}</div></td><td>${esc(ret?.return_number||'â€”')}<div class="subline">${esc(o?.order_number||'')}</div></td><td>${number(i.quantity)}</td><td>${statusBadge(oi?.fulfillment_type||'own_stock')}</td><td><button class="btn-small" data-action="inspect-line" data-id="${i.id}">Resolve line</button></td></tr>`}).join('')):'<div class="empty">No pending return lines. New returns will appear here for inspection.</div>'}
+function transactionsHTML(){const paid=cache.customerTx.filter(x=>x.transaction_type==='payment').reduce((s,x)=>s+number(x.amount),0),refund=cache.customerTx.filter(x=>x.transaction_type==='refund').reduce((s,x)=>s+Math.abs(number(x.amount)),0),supplier=cache.supplierTx.reduce((s,x)=>s+number(x.amount),0);return `${pageHead('Money ledgers','Record customer payments and supplier payments through guarded database functions.',`<button data-action="record-payment">ï¼‹ Customer payment</button>`)}<div class="grid stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">${stat('Customer payments',money(paid),'Positive receipts','green')}${stat('Customer refunds',money(refund),'Recorded as negative ledger entries','red')}${stat('Supplier net ledger',money(supplier),'Positive = payable','gold')}</div><div class="split"><section class="card"><div class="card-head"><div><h2>Customer transactions</h2><p class="sub">Payments, refunds and adjustments</p></div></div><div class="toolbar"><input id="customerTxSearch" placeholder="Filter customer/order/methodâ€¦"></div><div id="customerTxTable"></div></section><section class="card"><div class="card-head"><div><h2>Supplier transactions</h2><p class="sub">Payables, payments, credits and adjustments</p></div><button class="btn-ghost btn-small" data-action="record-supplier-payment">Pay supplier</button></div><div class="toolbar"><input id="supplierTxSearch" placeholder="Filter supplier/order/referenceâ€¦"></div><div id="supplierTxTable"></div></section></div>`}
+function drawTransactions(){const cq=(val('customerTxSearch')||'').toLowerCase(),sq=(val('supplierTxSearch')||'').toLowerCase();let ct=[...cache.customerTx].sort((a,b)=>new Date(b.transaction_date)-new Date(a.transaction_date)).filter(t=>{const o=cache.orders.find(o=>o.id===t.order_id),c=cache.customers.find(c=>c.id===t.customer_id);return `${o?.order_number||''} ${c?.name||''} ${t.payment_method} ${t.transaction_type} ${t.transaction_reference}`.toLowerCase().includes(cq)}),st=[...cache.supplierTx].sort((a,b)=>new Date(b.transaction_date)-new Date(a.transaction_date)).filter(t=>{const s=cache.suppliers.find(s=>s.id===t.supplier_id),o=cache.orders.find(o=>o.id===t.order_id);return `${s?.name||''} ${o?.order_number||''} ${t.transaction_type} ${t.transaction_reference}`.toLowerCase().includes(sq)});$('customerTxTable').innerHTML=table(['Date / order','Type','Method / ref','Amount'],ct.map(t=>{const o=cache.orders.find(o=>o.id===t.order_id),c=cache.customers.find(c=>c.id===t.customer_id);return `<tr><td>${dateFmt(t.transaction_date)}<div class="subline">${esc(o?.order_number||c?.name||'â€”')}</div></td><td>${statusBadge(t.transaction_type)}</td><td>${esc(t.payment_method)}<div class="subline">${esc(t.transaction_reference||'')}</div></td><td class="${number(t.amount)<0?'red':'green'}"><b>${money(t.amount)}</b></td></tr>`}).join(''));$('supplierTxTable').innerHTML=table(['Date / supplier','Type','Reference','Amount'],st.map(t=>{const s=cache.suppliers.find(s=>s.id===t.supplier_id),o=cache.orders.find(o=>o.id===t.order_id);return `<tr><td>${dateFmt(t.transaction_date)}<div class="subline">${esc(s?.name||'â€”')} ${o?'Â· '+esc(o.order_number):''}</div></td><td>${statusBadge(t.transaction_type)}</td><td>${esc(t.transaction_reference||'â€”')}<div class="subline">${esc(t.notes||'')}</div></td><td class="${number(t.amount)<0?'green':'gold'}"><b>${money(t.amount)}</b></td></tr>`}).join(''))}
+function expensesHTML(){const total=cache.expenses.reduce((s,e)=>s+number(e.amount),0);return `${pageHead('Expenses','Record operating expenses with date, category and a clear description.',`<button data-action="new-expense">ï¼‹ Add expense</button>`)}<div class="grid stats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:16px">${stat('All recorded expenses',money(total),'Sum of saved expense rows','gold')}${stat('Expense entries',cache.expenses.length,'No deletion controls exposed')}</div><div class="toolbar"><input id="expenseSearch" placeholder="Search category or descriptionâ€¦"><select id="expenseCategory"><option value="all">All categories</option>${[...new Set(cache.expenses.map(e=>e.category))].map(x=>`<option>${esc(x)}</option>`).join('')}</select></div><div id="expensesTable"></div>`}
+function drawExpenses(){const q=(val('expenseSearch')||'').toLowerCase(),cat=val('expenseCategory')||'all',rows=[...cache.expenses].filter(e=>`${e.category} ${e.description}`.toLowerCase().includes(q)&&(cat==='all'||e.category===cat)).sort((a,b)=>new Date(b.expense_date)-new Date(a.expense_date));$('expensesTable').innerHTML=table(['Date','Category','Description','Amount'],rows.map(e=>`<tr><td>${dateFmt(e.expense_date)}</td><td>${esc(e.category)}</td><td>${esc(e.description)}</td><td><b>${money(e.amount)}</b></td></tr>`).join(''))}
+function inventoryHTML(){return `${pageHead('Stock movements','Audit trail for opening stock, stock in/out, dispatches, returns and adjustments.',`<button class="btn-ghost" data-action="export" data-table="stock_movements">Export movements CSV</button>`)}<div class="toolbar"><input id="movementSearch" placeholder="Search SKU, product, note or orderâ€¦"><select id="movementType"><option value="all">All movement types</option>${['Opening','Stock In','Stock Out','Dispatch','Return','Adjustment'].map(s=>`<option>${s}</option>`).join('')}</select></div><div id="movementsTable"></div><div class="card" style="margin-top:15px"><div class="card-head"><div><h2>Non-sellable inventory</h2><p class="sub">Damaged, repair or quarantined returned items.</p></div></div><div id="conditionsTable"></div></div>`}
+function drawInventory(){const q=(val('movementSearch')||'').toLowerCase(),typ=val('movementType')||'all',rows=cache.stockMovements.filter(m=>{const p=cache.products.find(p=>p.id===m.product_id),o=cache.orders.find(o=>o.id===m.order_id);return `${p?.name||''} ${p?.sku||''} ${m.note} ${o?.order_number||''}`.toLowerCase().includes(q)&&(typ==='all'||m.movement_type===typ)}).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));$('movementsTable').innerHTML=table(['Date','Product','Movement','Quantity','Order / note'],rows.map(m=>{const p=cache.products.find(p=>p.id===m.product_id),o=cache.orders.find(o=>o.id===m.order_id);return `<tr><td>${dateTime(m.created_at)}</td><td>${esc(p?.name||'Deleted/unavailable product')}<div class="subline">${esc(p?.sku||'')}</div></td><td>${statusBadge(m.movement_type)}</td><td class="${number(m.quantity)<0?'red':'green'}"><b>${number(m.quantity)>0?'+':''}${number(m.quantity)}</b></td><td>${esc(o?.order_number||'â€”')}<div class="subline">${esc(m.note||'')}</div></td></tr>`}).join(''));$('conditionsTable').innerHTML=table(['Product','Condition','Qty','Status','Notes'],cache.inventoryConditions.map(x=>{const p=cache.products.find(p=>p.id===x.product_id);return `<tr><td>${esc(p?.name||'â€”')}<div class="subline">${esc(p?.sku||'')}</div></td><td>${statusBadge(x.condition)}</td><td>${number(x.quantity)}</td><td>${statusBadge(x.status)}</td><td>${esc(x.notes||'')}</td></tr>`}).join(''))}
+function reportsHTML(){return `${pageHead('Reports & export','Download CSV extracts for analysis and reconciliation.',`<button data-action="refresh">â†» Refresh data</button>`)}<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(235px,1fr))">${[['products','Product catalogue','Prices, variants and current stock'],['orders','Orders','COD, courier, status and settlement fields'],['order_items','Order line items','Fulfilment, unit cost, returns and supplier fields'],['customers','Customers','Customer directory'],['suppliers','Suppliers','Supplier directory'],['expenses','Expenses','Date, category and amounts'],['customer_transactions','Customer ledger','Recorded receipts, refunds and adjustments'],['supplier_transactions','Supplier ledger','Payables, payments, credits and adjustments'],['returns','Return cases','Return status, fees and tracking'],['return_items','Return lines','Inspection outcomes and refund/credit amounts'],['stock_movements','Stock movements','Inventory movement audit trail'],['inventory_conditions','Non-sellable inventory','Damaged, repair and quarantine records']].map(([t,title,desc])=>`<div class="card"><div class="card-head"><h2>${title}</h2><span class="badge">CSV</span></div><p class="sub">${desc}</p><button class="btn-ghost" style="width:100%;margin-top:15px" data-action="export" data-table="${t}">Export ${t.replaceAll('_',' ')} â†“</button></div>`).join('')}</div><div class="pill-note" style="margin-top:5px">Exports contain the fields returned by your existing database tables. CSV exports may include customer contact details; store them securely and share only with authorized people.</div>`}
+function bindPageEvents(){if(currentPage==='Products'){drawProducts();$('productSearch').oninput=drawProducts;$('productFilter').onchange=drawProducts}if(currentPage==='Orders'){drawOrders();['orderSearch','orderStatus','orderPay'].forEach(id=>$(id).addEventListener(id==='orderSearch'?'input':'change',drawOrders))}if(currentPage==='Customers'){drawCustomers();$('customerSearch').oninput=drawCustomers}if(currentPage==='Suppliers'){drawSuppliers();$('supplierSearch').oninput=drawSuppliers}if(currentPage==='Returns'){drawReturns();$('returnSearch').oninput=drawReturns;$('returnStatus').onchange=drawReturns}if(currentPage==='Transactions'){drawTransactions();$('customerTxSearch').oninput=drawTransactions;$('supplierTxSearch').oninput=drawTransactions}if(currentPage==='Expenses'){drawExpenses();$('expenseSearch').oninput=drawExpenses;$('expenseCategory').onchange=drawExpenses}if(currentPage==='Inventory'){drawInventory();$('movementSearch').oninput=drawInventory;$('movementType').onchange=drawInventory}}
+function modal(title,body,submitLabel='Save',onSubmit=null){$('modalHost').innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><div class="modal"><div class="modal-head"><h2>${title}</h2><button class="btn-ghost btn-small" data-action="close-modal">âœ• Close</button></div><div id="modalBody">${body}</div>${submitLabel?`<div class="form-actions"><button id="modalSubmit">${submitLabel}</button><button class="btn-ghost" data-action="close-modal">Cancel</button></div>`:''}</div></div>`;const backdrop=$('modalBackdrop');backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeModal()});if(submitLabel&&onSubmit)$('modalSubmit').onclick=()=>guarded(async()=>{const b=$('modalSubmit');setBusy(b,true);try{await onSubmit()}finally{setBusy(b,false)}})}function closeModal(){$('modalHost').innerHTML=''}
+function productModal(p=null){modal(p?'Edit product':'Add product',`<div class="form-grid three">${field('SKU','fSku','text',p?.sku||'','required')}${field('Product name','fName','text',p?.name||'','required')}${selectField('Category','fCategory',['Perfume','Watch','Wallet','Hoodie','Sweatshirt','Sweater','Jacket','Office','Accessories','Other'],p?.category||'Perfume')}${field('Variant / size / colour','fVariant','text',p?.variant||'')}${field('Cost price (PKR)','fCost','number',p?.cost_price??0,'min="0" step="0.01" required')}${field('Sale price (PKR)','fSale','number',p?.sale_price??0,'min="0" step="0.01" required')}${field('Reorder level','fReorder','number',p?.reorder_level??3,'min="0" step="1" required')}${p?`<div class="span-all warning-text">Current stock: ${number(p.stock)}. Stock changes must be recorded separately through Stock In.</div>`:field('Opening stock','fStock','number',0,'min="0" step="1" required')}</div>`,p?'Save changes':'Create product',async()=>{const d={sku:val('fSku').trim().toUpperCase(),name:val('fName').trim(),category:val('fCategory'),variant:val('fVariant').trim(),cost_price:Number(val('fCost')),sale_price:Number(val('fSale')),reorder_level:Number(val('fReorder'))};if(!d.sku||!d.name)throw Error('SKU aur product name required hain.');if([d.cost_price,d.sale_price,d.reorder_level].some(n=>!Number.isFinite(n)||n<0))throw Error('Prices aur reorder level negative nahi ho sakte.');let result;if(p)result=await db.from('products').update({...d,updated_at:new Date().toISOString()}).eq('id',p.id);else{d.stock=Number(val('fStock'));if(!Number.isInteger(d.stock)||d.stock<0)throw Error('Opening stock whole number hona chahiye.');result=await db.from('products').insert(d).select().single()}if(result.error)throw result.error;if(!p&&d.stock>0){const r=await db.from('stock_movements').insert({product_id:result.data.id,movement_type:'Opening',quantity:d.stock,note:'Opening stock recorded on product creation'});if(r.error){toast('Product saved but opening-stock movement failed: '+r.error.message,'error');closeModal();await loadData();return}}closeModal();await loadData();toast(p?'Product updated.':'Product created.')})}
+function stockModal(id){const p=cache.products.find(p=>p.id===id);if(!p)return;modal('Receive stock',`<div class="pill-note">${esc(p.name)} Â· Current stock: <b>${number(p.stock)}</b>. This operation writes the stock movement after updating the product. If movement logging fails, the panel attempts a compensating stock update; verify inventory history after any error.</div><div class="form-grid">${field('Quantity received','fStockQty','number','1','min="1" step="1" required')}${field('Reference / note','fStockNote','text','Supplier delivery / restock')}</div>`,'Receive stock',async()=>{const q=Number(val('fStockQty')),note=val('fStockNote').trim()||'Manual stock-in';if(!Number.isInteger(q)||q<1)throw Error('Quantity must be a positive whole number.');const updated=await db.from('products').update({stock:number(p.stock)+q,updated_at:new Date().toISOString()}).eq('id',p.id).eq('stock',p.stock).select('id');if(updated.error)throw updated.error;if(!updated.data?.length)throw Error('Stock changed in another session. Refresh and try again.');const movement=await db.from('stock_movements').insert({product_id:p.id,movement_type:'Stock In',quantity:q,note});if(movement.error){const rollback=await db.from('products').update({stock:number(p.stock),updated_at:new Date().toISOString()}).eq('id',p.id).eq('stock',number(p.stock)+q);throw Error('Movement log failed; stock rollback '+(rollback.error?'also failed â€” VERIFY STOCK IMMEDIATELY. ':'was attempted. ')+movement.error.message)}closeModal();await loadData();toast('Stock received and movement recorded.')})}
+function customerModal(c=null){modal(c?'Edit customer':'Add customer',`<div class="form-grid">${field('Full name','fCName','text',c?.name||'','required')}${field('Phone','fCPhone','tel',c?.phone||'')}${field('Email','fCEmail','email',c?.email||'') }<label class="span-all">Address<textarea id="fCAddress">${esc(c?.address||'')}</textarea></label><label class="span-all">Notes<textarea id="fCNotes">${esc(c?.notes||'')}</textarea></label></div>`,c?'Save customer':'Create customer',async()=>{const d={name:val('fCName').trim(),phone:val('fCPhone').trim(),email:val('fCEmail').trim(),address:val('fCAddress').trim(),notes:val('fCNotes').trim(),updated_at:new Date().toISOString()};if(!d.name)throw Error('Customer name required hai.');const r=c?await db.from('customers').update(d).eq('id',c.id):await db.from('customers').insert(d);if(r.error)throw r.error;closeModal();await loadData();toast(c?'Customer updated.':'Customer created.')})}
+function supplierModal(s=null){modal(s?'Edit supplier':'Add supplier',`<div class="form-grid">${field('Supplier name','fSName','text',s?.name||'','required')}${field('Supplier code','fSCode','text',s?.supplier_code||'')}${field('Contact person','fSContact','text',s?.contact_person||'')}${field('Phone','fSPhone','tel',s?.phone||'')}${field('Email','fSEmail','email',s?.email||'')}${selectField('Status','fSActive',[{value:'true',label:'Active'},{value:'false',label:'Inactive'}],String(s?.is_active??true))}<label class="span-all">Address<textarea id="fSAddress">${esc(s?.address||'')}</textarea></label><label class="span-all">Notes<textarea id="fSNotes">${esc(s?.notes||'')}</textarea></label></div>`,s?'Save supplier':'Create supplier',async()=>{const d={name:val('fSName').trim(),supplier_code:val('fSCode').trim()||null,contact_person:val('fSContact').trim(),phone:val('fSPhone').trim(),email:val('fSEmail').trim(),address:val('fSAddress').trim(),notes:val('fSNotes').trim(),is_active:val('fSActive')==='true',updated_at:new Date().toISOString()};if(!d.name)throw Error('Supplier name required hai.');const r=s?await db.from('suppliers').update(d).eq('id',s.id):await db.from('suppliers').insert(d);if(r.error)throw r.error;closeModal();await loadData();toast(s?'Supplier updated.':'Supplier created.')})}
+function expenseModal(){modal('Add expense',`<div class="form-grid">${field('Date','fEDate','date',today(),'required')}${selectField('Category','fECat',['Packaging','Advertising','Product purchase','Courier','Shipping','Office supplies','Equipment','Salaries','Returns','Bank charges','Other'],'Advertising')}${field('Amount (PKR)','fEAmount','number','','min="0" step="0.01" required')}<label class="span-all">Description<textarea id="fEDesc" required placeholder="What was this expense for?"></textarea></label></div>`,'Save expense',async()=>{const d={expense_date:val('fEDate'),category:val('fECat'),amount:Number(val('fEAmount')),description:val('fEDesc').trim()};if(!d.expense_date||!d.description||!Number.isFinite(d.amount)||d.amount<0)throw Error('Date, description and non-negative amount required.');const r=await db.from('expenses').insert(d);if(r.error)throw r.error;closeModal();await loadData();toast('Expense saved.')})}
+function orderModal(){if(!cache.products.length)throw toast('Order se pehle product add karein.','error');orderLines=0;const productOptions=cache.products.map(p=>({value:p.id,label:`${p.name} Â· ${p.sku} Â· stock ${p.stock} Â· ${money(p.sale_price)}`}));modal('Create order',`<div class="pill-note">Orders are created as Pending. Stock is deducted only through the existing atomic dispatch_order RPC. For dropshipping, select a supplier and enter the supplier unit cost.</div><div class="form-grid three">${field('Order number','fONumber','text','Generatingâ€¦','readonly')}${field('Customer name','fOName','text','','required')}${field('Phone','fOPhone','tel','')}${field('Courier','fOCourier','text','Leopards','required')}${field('Customer delivery fee (PKR)','fODelivery','number','200','min="0" step="0.01" required')}${field('COD deduction rate (%)','fORate','number','4','min="0" max="100" step="0.01" required')}${selectField('Deduction basis','fOBasis',['Total COD','Product Amount'],'Total COD')}${selectField('Source','fOSource',['Manual','Instagram','WhatsApp','Website','Facebook','TikTok','Walk-in','Other'],'Manual')}${selectField('Link customer (optional)','fOCustomer',[{value:'',label:'No linked customer'},...cache.customers.map(c=>({value:c.id,label:`${c.name} Â· ${c.phone}`}))],'')}</div><label style="margin-top:13px">Delivery address<textarea id="fOAddress"></textarea></label><label style="margin-top:13px">Delivery instructions<textarea id="fODeliveryInstructions"></textarea></label><div class="card" style="margin-top:15px;background:#111216"><div class="card-head"><h3>Order line items</h3><button class="btn-ghost btn-small" type="button" data-action="add-order-line">ï¼‹ Add line</button></div><div id="orderLineHost"></div><div class="mini-metric"><span>Product subtotal</span><b id="orderSubtotal" class="gold">Rs. 0</b></div><div class="mini-metric"><span>Total COD</span><b id="orderTotal" class="gold">Rs. 200</b></div></div><label style="margin-top:13px">Internal notes<textarea id="fOInternalNotes"></textarea></label>`,'Create pending order',async()=>{const name=val('fOName').trim(),phone=val('fOPhone').trim(),address=val('fOAddress').trim(),fee=Number(val('fODelivery')),rate=Number(val('fORate')),lines=[...document.querySelectorAll('.item-row')].map(row=>({product_id:row.querySelector('.item-product').value,quantity:Number(row.querySelector('.item-qty').value),unit_sale_price:Number(row.querySelector('.item-price').value),fulfillment_type:row.querySelector('.item-fulfillment').value,supplier_id:row.querySelector('.item-supplier')?.value||null,supplier_unit_cost:Number(row.querySelector('.item-supplier-cost')?.value||0),variant_size:row.querySelector('.item-size').value.trim(),variant_color:row.querySelector('.item-color').value.trim(),delivery_instructions:row.querySelector('.item-instructions').value.trim()}));if(!name)throw Error('Customer name required.');if(!lines.length)throw Error('At least one order line required.');if(!Number.isFinite(fee)||fee<0||!Number.isFinite(rate)||rate<0||rate>100)throw Error('Delivery fee / deduction rate check karein.');let subtotal=0;for(const l of lines){const p=cache.products.find(p=>p.id===l.product_id);if(!p)throw Error('Select valid product.');if(!Number.isInteger(l.quantity)||l.quantity<1)throw Error('Quantity must be a positive whole number.');if(!Number.isFinite(l.unit_sale_price)||l.unit_sale_price<0)throw Error('Invalid sale price.');if(l.fulfillment_type==='own_stock'&&l.quantity>number(p.stock))throw Error(`${p.name}: available stock is ${p.stock}.`);if(l.fulfillment_type==='dropshipping'&&(!l.supplier_id||!Number.isFinite(l.supplier_unit_cost)||l.supplier_unit_cost<0))throw Error('Dropship line needs supplier and supplier unit cost.');l.product=p;subtotal+=l.quantity*l.unit_sale_price}const orderNo=val('fONumber').trim();if(!orderNo||orderNo==='Generatingâ€¦'||orderNo==='RPC error')throw Error('Order number is not ready. Close and reopen the form, then try again.');const order={order_number:orderNo,customer_name:name,customer_phone:phone,address,courier:val('fOCourier').trim()||'Other',tracking_number:'',status:'Pending',payment_status:'Pending',product_subtotal:subtotal,customer_delivery_fee:fee,total_cod:subtotal+fee,actual_outbound_courier_fee:0,actual_return_courier_fee:0,deduction_rate:rate,deduction_basis:val('fOBasis'),notes:'',source:val('fOSource'),customer_id:val('fOCustomer')||null,delivery_instructions:val('fODeliveryInstructions').trim(),cancellation_reason:'',internal_notes:val('fOInternalNotes').trim()};const {data:od,error:oe}=await db.from('orders').insert(order).select().single();if(oe)throw oe;const orderItems=lines.map(l=>({order_id:od.id,product_id:l.product.id,product_name:l.product.name,sku:l.product.sku,quantity:l.quantity,unit_sale_price:l.unit_sale_price,unit_cost_price:l.fulfillment_type==='own_stock'?number(l.product.cost_price):l.supplier_unit_cost,returned_quantity:0,fulfillment_type:l.fulfillment_type,supplier_id:l.fulfillment_type==='dropshipping'?l.supplier_id:null,supplier_unit_cost:l.fulfillment_type==='dropshipping'?l.supplier_unit_cost:null,variant_size:l.variant_size,variant_color:l.variant_color,delivery_instructions:l.delivery_instructions,stock_deducted:false,stock_restored_quantity:0,supplier_return_status:'not_applicable',supplier_return_tracking:'',supplier_credit_amount:0}));const ir=await db.from('order_items').insert(orderItems);if(ir.error){const cleanup=await db.from('orders').delete().eq('id',od.id);throw Error('Order lines failed: '+ir.error.message+(cleanup.error?' Â· Cleanup also failed; review order '+orderNo:' Â· Empty order cleanup attempted.'))}closeModal();await loadData();toast(`Order ${orderNo} created. Stock has not been deducted yet.`)});db.rpc('generate_luxera_order_number').then(({data,error})=>{if(!$('fONumber'))return;if(error){$('fONumber').value='RPC error';$('fONumber').title=error.message}else $('fONumber').value=data}).catch(()=>{});addOrderLine();}
+function addOrderLine(){const host=$('orderLineHost');if(!host)return;const id=++orderLines;const opts=cache.products.map(p=>`<option value="${p.id}" data-price="${p.sale_price}" data-stock="${p.stock}" data-cost="${p.cost_price}">${esc(p.name)} Â· ${esc(p.sku)} Â· stock ${p.stock}</option>`).join('');const supplierOpts=cache.suppliers.filter(s=>s.is_active).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');host.insertAdjacentHTML('beforeend',`<div class="item-row" data-line="${id}"><label class="item-product-wrap item-product-label">Product<select class="item-product" data-line="${id}">${opts}</select></label><label>Qty<input class="item-qty" type="number" min="1" step="1" value="1" data-line="${id}"></label><label>Sale price<input class="item-price" type="number" min="0" step="0.01" value="${number(cache.products[0]?.sale_price)}" data-line="${id}"></label><label>Fulfilment<select class="item-fulfillment" data-line="${id}"><option value="own_stock">Own stock</option><option value="dropshipping">Dropship</option></select></label><button type="button" class="btn-danger btn-small item-remove" data-action="remove-order-line" data-id="${id}">Remove line</button><div class="item-extra span-all" style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px"><label>Size<input class="item-size" placeholder="e.g. 50ml / 42"></label><label>Colour<input class="item-color" placeholder="e.g. Black"></label><label>Line instructions<input class="item-instructions" placeholder="Optional"></label><label class="item-supplier-wrap hidden">Supplier<select class="item-supplier"><option value="">Select supplier</option>${supplierOpts}</select></label><label class="item-supplier-cost-wrap hidden">Supplier unit cost<input class="item-supplier-cost" type="number" min="0" step="0.01" value="0"></label></div></div>`);const row=host.querySelector(`[data-line="${id}"]`);row.querySelector('.item-product').onchange=()=>{const opt=row.querySelector('.item-product').selectedOptions[0];row.querySelector('.item-price').value=opt.dataset.price||0;calcOrderTotals()};row.querySelector('.item-qty').oninput=calcOrderTotals;row.querySelector('.item-price').oninput=calcOrderTotals;row.querySelector('.item-fulfillment').onchange=()=>{const drop=row.querySelector('.item-fulfillment').value==='dropshipping';row.querySelector('.item-supplier-wrap').classList.toggle('hidden',!drop);row.querySelector('.item-supplier-cost-wrap').classList.toggle('hidden',!drop);calcOrderTotals()};calcOrderTotals()}
+function calcOrderTotals(){const sub=[...document.querySelectorAll('.item-row')].reduce((s,r)=>s+Math.max(0,Number(r.querySelector('.item-qty').value)||0)*Math.max(0,Number(r.querySelector('.item-price').value)||0),0);if($('orderSubtotal'))$('orderSubtotal').textContent=money(sub);if($('orderTotal'))$('orderTotal').textContent=money(sub+Math.max(0,Number(val('fODelivery'))||0));if($('fODelivery'))$('fODelivery').oninput=()=>{if($('orderTotal'))$('orderTotal').textContent=money(sub+Math.max(0,Number(val('fODelivery'))||0))}}
+function dispatchModal(id){const o=cache.orders.find(o=>o.id===id);if(!o)return;modal('Dispatch order',`<div class="pill-note">${esc(o.order_number)} Â· ${esc(o.customer_name)}. Dispatch runs the existing database RPC which validates stock and deducts own-stock lines atomically. Dropship lines do not deduct your product stock.</div><div class="form-grid">${field('Courier tracking / consignment number','fTrack','text',o.tracking_number||'')}${field('Actual outbound courier fee (PKR)','fOutFee','number',o.actual_outbound_courier_fee||300,'min="0" step="0.01" required')}</div>`,'Confirm dispatch',async()=>{const fee=Number(val('fOutFee'));if(!Number.isFinite(fee)||fee<0)throw Error('Courier fee must be non-negative.');const r=await db.rpc('dispatch_order',{p_order_id:id,p_tracking_number:val('fTrack').trim(),p_outbound_fee:fee});if(r.error)throw r.error;closeModal();await loadData();toast('Order dispatched. Stock movement was processed by the database function.')})}
+async function markDelivered(id){const o=cache.orders.find(o=>o.id===id);if(!o||o.status!=='Dispatched')return; if(!confirm(`Mark ${o.order_number} as Delivered? Dropshipping payables may be created automatically by your database trigger.`))return;const r=await db.from('orders').update({status:'Delivered',delivered_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id).eq('status','Dispatched');if(r.error)throw r.error;await loadData();toast('Order marked delivered. Verify courier proof and COD collection separately.')}
+async function cancelOrder(id){const o=cache.orders.find(o=>o.id===id);if(!o||o.status!=='Pending')return;const reason=prompt('Cancellation reason (required):');if(reason===null)return;if(!reason.trim())throw Error('Cancellation reason required.');const r=await db.from('orders').update({status:'Cancelled',cancelled_at:new Date().toISOString(),cancellation_reason:reason.trim(),updated_at:new Date().toISOString()}).eq('id',id).eq('status','Pending');if(r.error)throw r.error;await loadData();toast('Pending order cancelled. No stock was deducted.')}
+function codModal(id){const o=cache.orders.find(o=>o.id===id);if(!o)return;modal('COD settlement record',`<div class="pill-note">This records courier statement values on the order. It does <b>not</b> create a customer transaction or prove cash reached your bank. Use Customer payment separately after funds are actually received.</div><div class="form-grid">${field('Order','fCodOrder','text',o.order_number,'readonly')}${field('Actual courier deduction (PKR)','fCodDeduction','number',o.actual_deduction??0,'min="0" step="0.01" required')}${field('Actual settlement received / payable (PKR)','fCodSettlement','number',o.actual_settlement??0,'min="0" step="0.01" required')}${selectField('Payment status','fCodStatus',['Pending','Partial','Settled','Not received'],o.payment_status||'Pending')}${field('Actual return courier fee (PKR)','fCodReturnFee','number',o.actual_return_courier_fee??0,'min="0" step="0.01" required')}</div>`,'Save COD figures',async()=>{const d=Number(val('fCodDeduction')),s=Number(val('fCodSettlement')),rf=Number(val('fCodReturnFee'));if([d,s,rf].some(x=>!Number.isFinite(x)||x<0))throw Error('Amounts must be non-negative.');const r=await db.from('orders').update({actual_deduction:d,actual_settlement:s,actual_return_courier_fee:rf,payment_status:val('fCodStatus'),updated_at:new Date().toISOString()}).eq('id',id);if(r.error)throw r.error;closeModal();await loadData();toast('COD statement figures saved. Record customer payment separately when received.')})}
+function paymentModal(orderId=null){const o=cache.orders.find(o=>o.id===orderId);modal('Record customer payment',`<div class="pill-note">Use only for money actually received. The existing <b>luxera_record_customer_payment</b> RPC writes the ledger entry and recalculates order payment status.</div><div class="form-grid">${selectField('Order','fPayOrder',[{value:'',label:'Select order'},...cache.orders.map(o=>({value:o.id,label:`${o.order_number} Â· ${o.customer_name} Â· COD ${money(o.total_cod)}`}))],orderId||'')}${field('Amount received (PKR)','fPayAmount','number','','min="0.01" step="0.01" required')}${selectField('Payment method','fPayMethod',['Cash','Bank','JazzCash','Easypaisa','Other'],'Bank')}${field('Transaction reference','fPayRef','text','') }<label class="span-all">Notes<textarea id="fPayNotes"></textarea></label></div>`,'Record payment',async()=>{const id=val('fPayOrder'),amt=Number(val('fPayAmount'));if(!id||!Number.isFinite(amt)||amt<=0)throw Error('Order and positive payment amount required.');const r=await db.rpc('luxera_record_customer_payment',{p_order_id:id,p_amount:amt,p_payment_method:val('fPayMethod'),p_reference:val('fPayRef').trim(),p_notes:val('fPayNotes').trim()});if(r.error)throw r.error;closeModal();await loadData();toast('Customer payment ledger entry recorded.')})}
+function supplierPaymentModal(supplierId=null){const s=cache.suppliers.find(s=>s.id===supplierId);modal('Pay supplier',`<div class="pill-note">Supplier payment uses <b>luxera_pay_supplier</b>, which validates the amount against the current supplier ledger balance.</div><div class="form-grid">${selectField('Supplier','fPaySupplier',[{value:'',label:'Select supplier'},...cache.suppliers.filter(s=>s.is_active).map(s=>({value:s.id,label:s.name}))],supplierId||'')}${field('Amount (PKR)','fSupPayAmount','number','','min="0.01" step="0.01" required')}${selectField('Payment method','fSupPayMethod',['Cash','Bank','JazzCash','Easypaisa','Other'],'Bank')}${field('Reference','fSupPayRef','text','')}</div><label style="margin-top:12px">Notes<textarea id="fSupPayNotes"></textarea></label>`,'Record supplier payment',async()=>{const sid=val('fPaySupplier'),amount=Number(val('fSupPayAmount'));if(!sid||!Number.isFinite(amount)||amount<=0)throw Error('Supplier and positive amount required.');const r=await db.rpc('luxera_pay_supplier',{p_supplier_id:sid,p_amount:amount,p_payment_method:val('fSupPayMethod'),p_reference:val('fSupPayRef').trim(),p_notes:val('fSupPayNotes').trim()});if(r.error)throw r.error;closeModal();await loadData();toast('Supplier payment recorded.')})}
+function newReturnModal(orderId=null){const eligible=cache.orders.filter(o=>['Dispatched','Delivered','Returned'].includes(o.status)),linesFor=id=>cache.items.filter(i=>i.order_id===id);modal('Register return case',`<div class="pill-note">Return cases are created using <b>luxera_create_return</b>. Only select quantities that physically came back / are being returned. Each line is inspected separately before stock changes.</div><div class="form-grid">${selectField('Order','fRetOrder',[{value:'',label:'Select eligible order'},...eligible.map(o=>({value:o.id,label:`${o.order_number} Â· ${o.customer_name}`}))],orderId||'')}${field('Return courier','fRetCourier','text','')}${field('Return tracking number','fRetTracking','text','')}${field('Actual return courier fee (PKR)','fRetFee','number','0','min="0" step="0.01" required')}</div><label style="margin-top:12px">Reason<textarea id="fRetReason" required placeholder="Reason for return"></textarea></label><label style="margin-top:12px">Notes<textarea id="fRetNotes"></textarea></label><div id="returnLineHost" style="margin-top:14px"></div>`,`Create return case`,async()=>{const oid=val('fRetOrder'),o=cache.orders.find(o=>o.id===oid);if(!o)throw Error('Select an order.');const lines=[...document.querySelectorAll('.ret-line-check:checked')].map(ch=>({order_item_id:ch.value,quantity:Number(document.querySelector(`[data-ret-qty="${ch.value}"]`).value)}));if(!lines.length||lines.some(x=>!Number.isInteger(x.quantity)||x.quantity<1))throw Error('Select at least one return line with a positive whole quantity.');const fee=Number(val('fRetFee'));if(!Number.isFinite(fee)||fee<0)throw Error('Invalid return courier fee.');const number='RET-'+Date.now().toString().slice(-9);const r=await db.rpc('luxera_create_return',{p_order_id:oid,p_return_number:number,p_reason:val('fRetReason').trim(),p_items:lines,p_notes:val('fRetNotes').trim()});if(r.error)throw r.error;const id=r.data;const update=await db.from('returns').update({return_courier:val('fRetCourier').trim(),return_tracking_number:val('fRetTracking').trim(),actual_return_courier_fee:fee,updated_at:new Date().toISOString()}).eq('id',id);if(update.error){toast('Return case created, but courier fields failed to save: '+update.error.message,'error')}closeModal();await loadData();toast('Return case created. Inspect each line before resolving.')});const sel=$('fRetOrder');const drawLines=()=>{const oid=val('fRetOrder'),items=linesFor(oid);$('returnLineHost').innerHTML=items.length?`<h3 style="font-size:13px;margin-bottom:8px">Items to return</h3>`+items.map(i=>{const sold=number(i.quantity),previous=cache.returnItems.filter(ri=>ri.order_item_id===i.id&&!['rejected','cancelled'].includes(cache.returns.find(r=>r.id===ri.return_id)?.status)).reduce((s,ri)=>s+number(ri.quantity),0),remaining=Math.max(0,sold-previous);return `<div class="item-row" style="grid-template-columns:1fr .5fr .6fr"><label class="inline" style="flex-direction:row;align-items:center"><input class="ret-line-check" type="checkbox" value="${i.id}" style="width:auto" ${remaining?'':'disabled'}><span>${esc(i.product_name)}<small style="display:block">${esc(i.sku)} Â· ${esc(i.fulfillment_type)}</small></span></label><label>Return qty<input data-ret-qty="${i.id}" type="number" min="1" max="${remaining}" step="1" value="${remaining?1:0}" ${remaining?'':'disabled'}></label><div class="muted" style="align-self:center">Remaining returnable: ${remaining}</div></div>`}).join(''):'<div class="empty">Choose an order to load its items.</div>'};sel.onchange=drawLines;drawLines()}
+function returnDetail(id){const r=cache.returns.find(r=>r.id===id);if(!r)return;const o=cache.orders.find(o=>o.id===r.order_id),its=cache.returnItems.filter(i=>i.return_id===id);modal(`Return ${r.return_number}`,`<div class="pill-note">${esc(o?.order_number||'')} Â· ${esc(o?.customer_name||'')} Â· ${statusBadge(r.status)}</div><div class="mini-metric"><span>Reason</span><b>${esc(r.reason||'â€”')}</b></div><div class="mini-metric"><span>Courier / tracking</span><b>${esc(r.return_courier||'â€”')} ${esc(r.return_tracking_number||'')}</b></div><div class="mini-metric"><span>Return courier fee</span><b>${money(r.actual_return_courier_fee)}</b></div>${table(['Item','Qty','Condition','Refund','Supplier credit'],its.map(i=>{const oi=cache.items.find(x=>x.id===i.order_item_id);return `<tr><td>${esc(oi?.product_name||'â€”')}<div class="subline">${esc(oi?.fulfillment_type||'')}</div></td><td>${i.quantity}</td><td>${statusBadge(i.condition)}</td><td>${money(i.customer_refund_amount)}</td><td>${money(i.supplier_credit_amount)}</td></tr>`}).join(''))}`,'',null)}
+function inspectLineModal(id){const ri=cache.returnItems.find(i=>i.id===id),oi=cache.items.find(i=>i.id===ri?.order_item_id);if(!ri||!oi)return;const drop=oi.fulfillment_type==='dropshipping';modal('Resolve return item',`<div class="pill-note"><b>${esc(oi.product_name)}</b> Â· Qty ${ri.quantity} Â· Fulfilment: ${esc(oi.fulfillment_type)}. This action is one-time and is handled by the database RPC.</div><div class="form-grid">${selectField('Inspection result','fInspectCondition',drop?[{value:'supplier_claim',label:'Supplier claim (dropship only)'}]:[{value:'sellable',label:'Sellable â€” restock own inventory'},{value:'damaged',label:'Damaged â€” do not restock'},{value:'repair',label:'Needs repair â€” do not restock'}],drop?'supplier_claim':'sellable')}${field('Customer refund (PKR)','fInspectRefund','number','0','min="0" step="0.01" required')}${selectField('Refund method','fInspectMethod',['Cash','Bank','JazzCash','Easypaisa','Other'],'Bank')}${drop?selectField('Supplier accepted return?','fSupplierAccepted',[{value:'false',label:'Not accepted yet'},{value:'true',label:'Accepted by supplier'}],'false'):''}${drop?field('Supplier credit amount (PKR)','fSupplierCredit','number','0','min="0" step="0.01" required'):''}${drop?field('Supplier credit reference','fSupplierCreditRef','text',''):''}${drop?field('Supplier return tracking','fSupplierTracking','text',oi.supplier_return_tracking||''):''}</div><label style="margin-top:12px">Inspection notes<textarea id="fInspectNotes"></textarea></label><p class="warning-text">Once resolved, the return line cannot be inspected again. Confirm the physical condition, refund amount and supplier acceptance before saving.</p>`,'Resolve inspection',async()=>{const condition=val('fInspectCondition'),refund=Number(val('fInspectRefund'));if(!Number.isFinite(refund)||refund<0)throw Error('Refund must be non-negative.');const accepted=drop&&val('fSupplierAccepted')==='true',credit=drop?Number(val('fSupplierCredit')):0;if(drop&&(!Number.isFinite(credit)||credit<0||(accepted&&credit<=0)))throw Error('Accepted supplier claim requires a positive credit amount.');const r=await db.rpc('luxera_resolve_return_item',{p_return_item_id:id,p_condition:condition,p_customer_refund:refund,p_refund_method:val('fInspectMethod'),p_supplier_accepted:accepted,p_supplier_credit:credit,p_supplier_credit_reference:val('fSupplierCreditRef')||'',p_supplier_return_tracking:val('fSupplierTracking')||'',p_notes:val('fInspectNotes').trim()});if(r.error)throw r.error;closeModal();await loadData();toast('Return item resolved. Stock/ledger changes were handled by the database function.')})}
+function returnStatusModal(id){const r=cache.returns.find(r=>r.id===id);if(!r)return;const allowed={requested:['approved','rejected','cancelled'],approved:['in_transit','cancelled'],in_transit:['received'],received:['inspecting'],inspecting:[],resolved:[],rejected:[],cancelled:[]}[r.status]||[];if(!allowed.length)throw toast('No further status transition available.','error');modal('Update return status',`<div class="pill-note">Current status: ${esc(r.status)}. Choose the next operational step only after the physical process occurred.</div>${selectField('Next status','fRetNext',allowed,allowed[0])}${field('Return courier','fRetCourier','text',r.return_courier||'')}${field('Tracking number','fRetTrack','text',r.return_tracking_number||'')}${field('Actual return courier fee (PKR)','fRetStatusFee','number',r.actual_return_courier_fee||0,'min="0" step="0.01"')}`, 'Update status',async()=>{const next=val('fRetNext'),d={status:next,return_courier:val('fRetCourier').trim(),return_tracking_number:val('fRetTrack').trim(),actual_return_courier_fee:Number(val('fRetStatusFee')),updated_at:new Date().toISOString()};if(next==='received')d.received_at=new Date().toISOString();if(next==='resolved')d.resolved_at=new Date().toISOString();const r2=await db.from('returns').update(d).eq('id',id).eq('status',r.status);if(r2.error)throw r2.error;closeModal();await loadData();toast('Return status updated.')})}
+function orderDetail(id){const o=cache.orders.find(o=>o.id===id);if(!o)return;const its=cache.items.filter(i=>i.order_id===id);modal(`Order ${o.order_number}`,`<div class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">Customer</div><b>${esc(o.customer_name)}</b><div class="subline">${esc(o.customer_phone)}</div><div class="subline">${esc(o.address)}</div></div><div class="card"><div class="muted">Order status</div><div style="margin:6px 0">${statusBadge(o.status)} ${statusBadge(o.payment_status)}</div><div class="subline">Created ${dateTime(o.created_at)}</div><div class="subline">Dispatched ${dateTime(o.dispatched_at)}</div><div class="subline">Delivered ${dateTime(o.delivered_at)}</div></div></div>${table(['Product / SKU','Qty','Fulfilment','Sale unit','Cost unit','Returned'],its.map(i=>`<tr><td>${esc(i.product_name)}<div class="subline">${esc(i.sku)} Â· ${esc(i.variant_size||'')} ${esc(i.variant_color||'')}</div></td><td>${i.quantity}</td><td>${statusBadge(i.fulfillment_type)}</td><td>${money(i.unit_sale_price)}</td><td>${money(i.unit_cost_price)}</td><td>${number(i.returned_quantity||0)}</td></tr>`).join(''))}<div class="mini-metric"><span>Product subtotal</span><b>${money(o.product_subtotal)}</b></div><div class="mini-metric"><span>Customer delivery fee</span><b>${money(o.customer_delivery_fee)}</b></div><div class="mini-metric"><span>Total COD</span><b class="gold">${money(o.total_cod)}</b></div><div class="mini-metric"><span>Actual courier deduction / settlement</span><b>${money(o.actual_deduction)} / ${money(o.actual_settlement)}</b></div><div class="mini-metric"><span>Tracking</span><b>${esc(o.tracking_number||'â€”')}</b></div><div class="mini-metric"><span>Delivery instructions</span><b>${esc(o.delivery_instructions||'â€”')}</b></div><div class="mini-metric"><span>Internal notes</span><b>${esc(o.internal_notes||'â€”')}</b></div>`,'',null)}
+async function exportTable(t){const mapping={products:'products',orders:'orders',order_items:'order_items',customers:'customers',suppliers:'suppliers',expenses:'expenses',customer_transactions:'customer_transactions',supplier_transactions:'supplier_transactions',returns:'returns',return_items:'return_items',stock_movements:'stock_movements',inventory_conditions:'inventory_conditions'};const tableName=mapping[t];if(!tableName)throw Error('Unsupported export table.');const {data,error}=await db.from(tableName).select('*').order('created_at',{ascending:false});if(error)throw error;if(!data?.length){toast('No data to export.','error');return}const keys=[...new Set(data.flatMap(r=>Object.keys(r)))],cell=x=>'"'+String(x??'').replace(/"/g,'""')+'"',csv='\ufeff'+[keys.map(cell).join(','),...data.map(r=>keys.map(k=>cell(r[k])).join(','))].join('\r\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`luxera-${t}-${today()}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(`${t} CSV exported.`)}
+function bindGlobal(){document.addEventListener('click',e=>{const pg=e.target.closest('[data-page]');if(pg){setPage(pg.dataset.page);return}const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;guarded(async()=>{if(a==='close-modal')closeModal();else if(a==='new-product')productModal();else if(a==='edit-product')productModal(cache.products.find(p=>p.id===id));else if(a==='stock-in')stockModal(id);else if(a==='new-order')orderModal();else if(a==='add-order-line')addOrderLine();else if(a==='remove-order-line'){document.querySelector(`[data-line="${id}"]`)?.remove();calcOrderTotals()}else if(a==='dispatch')dispatchModal(id);else if(a==='delivered')await markDelivered(id);else if(a==='cod-settle')codModal(id);else if(a==='cancel-order')await cancelOrder(id);else if(a==='order-detail')orderDetail(id);else if(a==='new-customer')customerModal();else if(a==='edit-customer')customerModal(cache.customers.find(c=>c.id===id));else if(a==='new-supplier')supplierModal();else if(a==='edit-supplier')supplierModal(cache.suppliers.find(s=>s.id===id));else if(a==='new-expense')expenseModal();else if(a==='record-payment')paymentModal();else if(a==='record-supplier-payment')supplierPaymentModal();else if(a==='pay-supplier')supplierPaymentModal(id);else if(a==='new-return')newReturnModal(id||null);else if(a==='return-detail')returnDetail(id);else if(a==='inspect-line')inspectLineModal(id);else if(a==='return-status')returnStatusModal(id);else if(a==='record-payment')paymentModal();else if(a==='export')await exportTable(b.dataset.table);else if(a==='refresh')await loadData()})});}
+$('loginBtn').addEventListener('click',connectLogin);$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')connectLogin()});$('logoutBtn').addEventListener('click',()=>guarded(logout));$('refreshBtn').addEventListener('click',()=>guarded(async()=>{await loadData();toast('Data refreshed.')}));bindGlobal();
+(function restore(){const u=localStorage.getItem('luxera_sb_url'),k=localStorage.getItem('luxera_sb_key');if(u)$('sbUrl').value=u;if(k)$('sbKey').value=k;if(!window.supabase){loginError('Supabase JS SDK failed to load. Check internet connection and reload.');return}if(u&&k){try{db=window.supabase.createClient(u,k,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});db.auth.getSession().then(async({data,error})=>{if(error||!data.session)return;session=data.session;if(session.user?.email?.toLowerCase()!==ADMIN_EMAIL){await db.auth.signOut();db=null;session=null;loginError('This session email is not authorized by the current database policies.');return}await openApp()}).catch(e=>loginError(e.message))}catch(e){loginError(e.message)}}})();
+</script></body></html>
